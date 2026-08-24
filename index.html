@@ -119,7 +119,7 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function openMenu(){document.getElementById("menuModal").classList.add("show")}
 function closeMenu(){document.getElementById("menuModal").classList.remove("show")}
 function showGuide(){openModal("Guida del gioco",`<p><b>Obiettivo:</b> rispondi correttamente a 15 domande e prova ad arrivare a €1.000.000.</p><p><b>Aiuti:</b> 50:50 elimina due risposte; Pubblico mostra una stima dei voti; Esperto suggerisce una risposta.</p><p>Puoi fermarti in qualsiasi momento e conservare il premio raggiunto. I punteggi vengono salvati sul dispositivo.</p>`)}
-function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Creata da <b>Miki by ChatGPT</b>.</p><p></p>`)}
+function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Creata da <b>Miki by ChatGPT</b>.</p><p>Le domande provengono dai PDF forniti per questo progetto.</p>`)}
 function saveRecord(v){localStorage.setItem("milionarioRecord",Math.max(v,+localStorage.getItem("milionarioRecord")||0))}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function renderPrizes(){let el=document.getElementById("prizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;return `<div class="prize ${level===game.level?'current':''} ${level===4||level===9?'safe':''}"><span>${level+1}</span><span>${euro(p)}</span></div>`}).join("")}
