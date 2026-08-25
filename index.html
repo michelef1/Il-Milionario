@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#02040d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quiz Milionario">
+<link rel="manifest" href="manifest.json">
+<title>Quiz Milionario</title>
+<style>
+:root{
+  --bg-deep:#050f2c;--panel:#0d2557;--panel2:#123374;--line:#2c4d8f;
+  --gold:#ffd447;--gold-hot:#ffb020;--white:#f7faff;--muted:#93a6cc;
+  --good:#1fd98a;--bad:#ff3358;--select:#e67e22;--t:0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(circle at 50% -10%,#153e82 0,#071b40 42%,#020510 100%);color:var(--white);overflow-x:hidden}
+body{display:flex;justify-content:center}
+button{font:inherit}
+
+#spotlights{position:fixed;inset:0;z-index:0;pointer-events:none;mix-blend-mode:screen;
+  background:conic-gradient(from 0deg at 50% 10%,
+    transparent 0deg, rgba(255,212,71,.06) 10deg, transparent 24deg,
+    transparent 150deg, rgba(120,170,255,.06) 164deg, transparent 178deg,
+    transparent 330deg, rgba(255,212,71,.05) 344deg, transparent 360deg);
+  animation:sweep 26s linear infinite;transform-origin:50% 10%}
+@keyframes sweep{to{transform:rotate(360deg)}}
+#vignette{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 22%,transparent 0%,transparent 38%,rgba(0,0,3,.6) 100%);
+  opacity:calc(.4 + var(--t,0)*.13)}
+
+#app{position:relative;z-index:1;width:100%;max-width:700px;min-height:100vh;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);display:flex;flex-direction:column}
+.screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
+.start{justify-content:center;align-items:center;text-align:center;gap:16px}
+.logo{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#1c4d9b 0,#0b2c68 58%,#061431 59%);border:4px solid var(--gold);box-shadow:0 0 35px #0c66ff66, inset 0 0 20px #0008;font-size:44px;font-weight:900;color:var(--gold);animation:pulseGold 2.5s infinite}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 35px #0c66ff66, inset 0 0 20px #0008}50%{box-shadow:0 0 35px #0c66ff66, inset 0 0 20px #0008, 0 0 30px #ffd44766}}
+h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 22px rgba(255,212,71,.35)}
+.subtitle{color:var(--muted);max-width:500px}
+.primary,.secondary{border:0;border-radius:16px;padding:15px 24px;font-weight:800;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--gold),var(--gold-hot));color:#171100;box-shadow:0 8px 25px #ffb70033}
+.secondary{background:#173665;color:white;border:1px solid #315b9e}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px}
+.top .brand{font-weight:900;color:var(--gold);letter-spacing:1px}
+.money{font-weight:900;font-size:19px;font-family:ui-monospace,"SF Mono",Menlo,"Cascadia Code",monospace;font-variant-numeric:tabular-nums;letter-spacing:1px;background:#03102c;padding:5px 12px;border-radius:8px;border:1px solid #1c3b74;text-shadow:0 0 8px rgba(255,212,71,.6);box-shadow:inset 0 0 10px #0009}
+.lifelines{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.help{background:linear-gradient(180deg,#123873,#0b285a);border:1px solid var(--line);color:white;border-radius:14px;padding:11px 6px;font-weight:800;min-height:58px}
+.help:disabled{opacity:.32}
+.progress{height:7px;background:#132b52;border-radius:20px;overflow:hidden;margin:2px 0 18px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-hot),var(--gold));width:0%;transition:width .4s}
+.prizeboard{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:15px}
+.prize{padding:7px 10px;border-radius:9px;background:#09204a;color:#aebfdd;font-weight:800;font-size:13px;display:flex;justify-content:space-between}
+.prize.current{background:linear-gradient(90deg,#765b08,#bd8e10);color:#fff}
+.prize.safe{border:1px solid #6d86b6}
+
+.question{position:relative;background:linear-gradient(145deg,#102f68,#091e47);border:1px solid #31558e;border-radius:22px;padding:22px 16px;text-align:center;margin-bottom:20px;font-size:clamp(20px,5.4vw,29px);font-weight:850;line-height:1.22;
+  box-shadow:0 12px 35px rgba(0,0,0,.45), 0 0 calc(14px + var(--t,0)*20px) rgba(255,212,71,calc(.35 + var(--t,0)*.25))}
+.question::before{content:"";position:absolute;inset:-7px;border-radius:27px;padding:2px;
+  background:repeating-linear-gradient(90deg,var(--gold) 0 10px, transparent 10px 20px);background-size:200% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:calc(.32 + var(--t,0)*.2);animation:marquee calc(1.7s - var(--t,0)*.4s) linear infinite}
+@keyframes marquee{to{background-position:200% 0}}
+
+.answers{display:grid;grid-template-columns:1fr;gap:9px}
+.answer{display:flex;align-items:center;gap:12px;border:1px solid #3b619d;background:#0d2a5e;color:white;border-radius:15px;padding:14px 15px;text-align:left;font-weight:750;font-size:16px;min-height:58px;cursor:pointer;transition:background 0.2s}
+.answer b{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,212,71,.12);border:1.5px solid var(--gold);color:var(--gold);font-size:13px}
+.answer.selected{background:var(--select);border-color:#f39c12;color:#fff}
+.answer.correct{background:#0b754f;border-color:var(--good)}
+.answer.wrong{background:#8c1832;border-color:var(--bad)}
+.answer.dim{opacity:.18}
+.answer.selected b,.answer.correct b,.answer.wrong b{background:rgba(255,255,255,.22);border-color:#fff;color:#fff}
+.status{text-align:center;color:var(--muted);min-height:26px;padding:8px}
+
+.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;padding:20px;z-index:20}
+.modal.show{display:grid}
+.box{width:min(500px,100%);background:#0a214c;border:1px solid #3c619c;border-radius:22px;padding:22px;text-align:center;box-shadow:0 25px 70px #0008}
+.box h2{margin-top:0;color:var(--gold)}
+.bar{height:22px;background:#071a38;border-radius:20px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;width:0;background:var(--gold)}
+.result{justify-content:center;align-items:center;text-align:center;gap:12px}
+.result .amount{font-size:48px;color:var(--gold);font-weight:950;font-family:ui-monospace,"SF Mono",Menlo,"Cascadia Code",monospace;text-shadow:0 0 24px rgba(255,212,71,.5)}
+@media(min-width:560px){.answers{grid-template-columns:1fr 1fr}.prizeboard{grid-template-columns:1fr 1fr}.question{padding:25px}}
+.score-list{max-height:45vh;overflow:auto;text-align:left}
+.score-row{padding:10px;border-bottom:1px solid #294b88;display:flex;justify-content:space-between;gap:10px}
+@media(max-width:380px){.lifelines{gap:5px}.help{font-size:12px;padding:9px 4px}.question{font-size:19px}.answer{font-size:15px;padding:13px}}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+#confetti span{position:absolute;top:-40px;animation-name:fall;animation-timing-function:ease-in;animation-fill-mode:forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(360deg);opacity:.2}}
+
+@media (prefers-reduced-motion: reduce){
+  #spotlights,.question::before,.logo{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div id="spotlights"></div>
+<div id="vignette"></div>
+<div id="app">
+<section id="start" class="screen active start">
+  <div class="logo">€</div>
+  <h1>QUIZ MILIONARIO</h1>
+  <div class="subtitle">15 domande. 4 risposte. Un milione di euro.</div>
+  <input id="playerName" maxlength="24" placeholder="Il tuo nome" autocomplete="name" style="width:min(420px,90%);padding:15px 16px;border-radius:15px;border:1px solid #315b9e;background:#0b2455;color:white;text-align:center;font-size:17px;outline:none">
+  <button class="primary" id="startBtn">INIZIA LA PARTITA</button>
+  <button class="secondary" id="scoresHomeBtn">🏆 Punteggi salvati</button>
+  <button class="secondary" id="resetBtn">Azzera record</button>
+  <div id="record" class="subtitle"></div>
+</section>
+
+<section id="game" class="screen">
+  <div class="top">
+    <div class="brand">QUIZ MILIONARIO</div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <button class="help" id="audioToggleBtn" aria-label="Attiva o disattiva audio" style="min-height:42px;padding:7px 10px;font-size:18px">🔊</button>
+      <button class="help" id="menuBtn" aria-label="Apri Menu" style="min-height:42px;padding:7px 10px;font-size:22px">⋮</button>
+      <div class="money" id="money">€100</div>
+    </div>
+  </div>
+  <div class="lifelines">
+    <button class="help" id="fifty">50:50</button>
+    <button class="help" id="audience">👥 Pubblico</button>
+    <button class="help" id="expert">📞 Esperto</button>
+  </div>
+  <div class="progress"><i id="progress"></i></div>
+  <div class="prizeboard" id="prizeboard"></div>
+  <div class="question" id="question"></div>
+  <button class="secondary" id="readQuestion" style="margin:-4px 0 12px">🔊 Leggi la domanda</button>
+  <div class="answers" id="answers"></div>
+  <div class="status" id="status"></div>
+  <button class="secondary" id="walkBtn">Mi fermo e incasso</button>
+</section>
+
+<section id="result" class="screen result">
+  <div class="logo">★</div><h1 id="resultTitle">Complimenti!</h1>
+  <div class="amount" id="resultAmount">€0</div>
+  <div class="subtitle" id="resultText"></div>
+  <button class="primary" id="againBtn">NUOVA PARTITA</button>
+  <button class="secondary" id="homeBtn">Torna al menu</button>
+</section>
+</div>
+
+<div class="modal" id="modal"><div class="box"><h2 id="modalTitle"></h2><div id="modalBody"></div><button class="primary" id="modalClose">OK</button></div></div>
+<div class="modal" id="menuModal"><div class="box"><h2>Menu</h2><button class="secondary" id="guideBtn" style="width:100%;margin:6px 0">📖 Guida del gioco</button><button class="secondary" id="scoresBtn" style="width:100%;margin:6px 0">🏆 Punteggi salvati</button><button class="secondary" id="infoBtn" style="width:100%;margin:6px 0">ℹ️ Info app</button><button class="primary" id="menuClose" style="margin-top:10px">Chiudi</button></div></div>
+
+<script>
+let playerName="";
+let soundEnabled=true;
+
+// Synth Web Audio API per effetti sonori — contesto creato al primo gesto utente (fix iOS)
+let audioCtx=null;
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playSound(type) {
+  if (!soundEnabled) return;
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  const now = ctx.currentTime;
+
+  if (type === 'click') {
+    osc.frequency.setValueAtTime(440, now);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc.start(now); osc.stop(now + 0.1);
+  } else if (type === 'select') {
+    osc.frequency.setValueAtTime(587.33, now);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.start(now); osc.stop(now + 0.2);
+  } else if (type === 'correct') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.15);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    osc.start(now); osc.stop(now + 0.5);
+  } else if (type === 'wrong') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.setValueAtTime(164.81, now + 0.2);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+    osc.start(now); osc.stop(now + 0.6);
+  }
+}
+
+function stopSpeech(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
+function speakQuestion(){
+  if(!("speechSynthesis" in window)){ openModal("Voce non disponibile","Il tuo browser non mette a disposizione la lettura vocale."); return; }
+  stopSpeech();
+  const text = document.getElementById("question").textContent;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang="it-IT"; u.rate=0.92; u.pitch=1;
+  const voices=speechSynthesis.getVoices();
+  const it=voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("it"));
+  if(it) u.voice=it;
+  speechSynthesis.speak(u);
+}
+
+const prizes=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const questions=[
+  {"q":"Qual è la capitale dell'Australia?","a":["Sydney","Melbourne","Canberra","Brisbane"],"c":2,"d":1},
+  {"q":"Quale fiume attraversa Parigi?","a":["Tamigi","Senna","Danubio","Loira"],"c":1,"d":1},
+  {"q":"Qual è l'oceano più grande del mondo?","a":["Atlantico","Indiano","Pacifico","Artico"],"c":2,"d":1},
+  {"q":"In quale continente si trova il deserto del Sahara?","a":["Asia","Africa","America del Sud","Australia"],"c":1,"d":1},
+  {"q":"Qual è lo Stato più piccolo del mondo?","a":["Monaco","San Marino","Città del Vaticano","Liechtenstein"],"c":2,"d":1},
+  {"q":"Quale catena montuosa separa l'Europa dall'Asia?","a":["Alpi","Urali","Ande","Himalaya"],"c":1,"d":2},
+  {"q":"In quale nazione si trova la città di Marrakech?","a":["Egitto","Tunisia","Marocco","Algeria"],"c":2,"d":2},
+  {"q":"Qual è l'isola più grande del Mar Mediterraneo?","a":["Sardegna","Cipro","Sicilia","Corsica"],"c":2,"d":2},
+  {"q":"Quale lingua è la più parlata al mondo per numero di madrelingua?","a":["Inglese","Spagnolo","Mandarino","Hindi"],"c":2,"d":2},
+  {"q":"In quale stato americano si trova la città di Miami?","a":["California","Texas","Florida","Nevada"],"c":2,"d":2},
+  {"q":"Qual è il lago più profondo del mondo?","a":["Lago Superiore","Lago Vittoria","Lago Bajkal","Lago Tanganica"],"c":2,"d":3},
+  {"q":"Quale paese è noto come la 'Terra del Sol Levante'?","a":["Cina","Giappone","Corea del Sud","Thailandia"],"c":1,"d":3},
+  {"q":"Quale di questi stati NON è attraversato dall'Equatore?","a":["Brasile","Kenya","Indonesia","Egitto"],"c":3,"d":3},
+  {"q":"Qual è la capitale del Canada?","a":["Toronto","Vancouver","Ottawa","Montreal"],"c":2,"d":3},
+  {"q":"In quale mare si getta il fiume Po?","a":["Mar Tirreno","Mar Adriatico","Mar Ionio","Mar Ligure"],"c":1,"d":3},
+  {"q":"Qual è la montagna più alta d'Africa?","a":["Monte Bianco","Kilimangiaro","Kenya","Everest"],"c":1,"d":4},
+  {"q":"Quale stretto separa l'Europa dall'Africa?","a":["Stretto di Messina","Stretto di Gibilterra","Stretto di Magellano","Bosforo"],"c":1,"d":4},
+  {"q":"Qual è lo stato più popoloso del mondo nel 2026?","a":["Cina","India","Stati Uniti","Indonesia"],"c":1,"d":4},
+  {"q":"In quale città si trova la sede principale dell'ONU?","a":["Ginevra","Washington","New York","Parigi"],"c":2,"d":4},
+  {"q":"Quale di queste città è la capitale della Spagna?","a":["Barcellona","Siviglia","Madrid","Valencia"],"c":2,"d":4},
+  {"q":"Quale tema globale legato alla sostenibilità è al centro dell'agenda internazionale nel 2026?","a":["Espansione del carbone","Riduzione delle energie rinnovabili","Uso indiscriminato delle plastiche","Transizione energetica e decarbonizzazione"],"c":3,"d":5},
+  {"q":"Qual è l'obiettivo principale dei moderni chip neuro-morfici nello sviluppo dell'hardware computing?","a":["Aumentare lo spazio di archiviazione meccanico","Eliminare i sistemi di raffreddamento","Ridurre la velocità della banda larga","Simulare la struttura del cervello umano"],"c":3,"d":5},
+  {"q":"Quale capitale europea è rinomata per la sua estesa rete di canali navigabili e l'uso diffuso delle biciclette?","a":["Madrid","Vienna","Atene","Amsterdam"],"c":3,"d":5},
+  {"q":"Chi è l'autore dell'opera letteraria 'La Divina Commedia', pietra miliare della lingua italiana?","a":["Francesco Petrarca","Giovanni Boccaccio","Alessandro Manzoni","Dante Alighieri"],"c":3,"d":5},
+  {"q":"Quale film ha trionfato ai premi Oscar per la miglior regia e miglior film d'animazione innovativo?","a":["Oppenheimer","Barbie","Dune - Parte Due","Il ragazzo e l'airone"],"c":3,"d":5},
+  {"q":"Dove si svolgono le gare di sci alpino maschile per le Olimpiadi Invernali di Milano-Cortina 2026?","a":["Cortina d'Ampezzo","Milano","Livigno","Bormio"],"c":3,"d":5},
+  {"q":"In quale anno è iniziata la Prima Guerra Mondiale?","a":["1914","1918","1939","1848"],"c":0,"d":2},
+  {"q":"Chi fu il primo imperatore romano?","a":["Giulio Cesare","Augusto","Nerone","Marco Aurelio"],"c":1,"d":3},
+  {"q":"Chi scoprì l'America nel 1492?","a":["Amerigo Vespucci","Ferdinando Magellano","Cristoforo Colombo","Marco Polo"],"c":2,"d":2},
+  {"q":"Quale celebre romanzo inizia con la frase 'Quel ramo del lago di Como'?","a":["I Promessi Sposi","Il fu Mattia Pascal","Mastro-don Gesualdo","La coscienza di Zeno"],"c":0,"d":3},
+  {"q":"Chi ha dipinto la 'Gioconda'?","a":["Michelangelo","Raffaello","Leonardo da Vinci","Donatello"],"c":2,"d":2},
+  {"q":"In quale anno è caduto il Muro di Berlino?","a":["1968","1975","1989","2001"],"c":2,"d":2},
+  {"q":"Chi era il dio del mare nella mitologia greca?","a":["Zeus","Poseidone","Ade","Ares"],"c":1,"d":2},
+  {"q":"Chi ha scritto il dramma 'Amleto'?","a":["Charles Dickens","William Shakespeare","Oscar Wilde","George Orwell"],"c":1,"d":2},
+  {"q":"Quale antico popolo costruì le piramidi di Giza?","a":["Romani","Greci","Egizi","Babilonesi"],"c":2,"d":1},
+  {"q":"Quale importante evento storico è avvenuto in Francia nel 1789?","a":["La Rivoluzione Francese","La battaglia di Waterloo","L'incoronazione di Napoleone","La Comune di Parigi"],"c":0,"d":2},
+  {"q":"Chi fu il presidente degli Stati Uniti durante la guerra di secessione americana?","a":["George Washington","Thomas Jefferson","Abraham Lincoln","Theodore Roosevelt"],"c":2,"d":3},
+  {"q":"Quale autore ha scritto 'Il Piccolo Principe'?","a":["Antoine de Saint-Exupéry","Jules Verne","Victor Hugo","Albert Camus"],"c":0,"d":2},
+  {"q":"Chi era la regina d'Egitto famosa per la sua relazione con Giulio Cesare e Marco Antonio?","a":["Nefertiti","Cleopatra","Hatshepsut","Arsinoe"],"c":1,"d":2},
+  {"q":"In quale città italiana nacque il Rinascimento?","a":["Roma","Venezia","Firenze","Milano"],"c":2,"d":2},
+  {"q":"Quale scienziato pronunciò la celebre frase 'E pur si muove'?","a":["Isaac Newton","Galileo Galilei","Nicola Copernico","Albert Einstein"],"c":1,"d":2},
+  {"q":"Chi ha scritto il romanzo distopico '1984'?","a":["Aldous Huxley","Ray Bradbury","George Orwell","H.G. Wells"],"c":2,"d":2},
+  {"q":"In quale anno l'Italia è diventata una Repubblica?","a":["1861","1918","1946","1948"],"c":2,"d":3},
+  {"q":"Chi è l'eroe principale dell'Odissea di Omero?","a":["Achille","Enea","Ulisse","Ettore"],"c":2,"d":2},
+  {"q":"Quale civiltà precolombiana ha fondato la città di Machu Picchu?","a":["Aztechi","Maya","Inca","Toltechi"],"c":2,"d":3},
+  {"q":"Qual è il pianeta più vicino al Sole?","a":["Venere","Mercurio","Marte","Giove"],"c":1,"d":1},
+  {"q":"Quale gas è essenziale per la respirazione umana?","a":["Azoto","Anidride carbonica","Ossigeno","Idrogeno"],"c":2,"d":1},
+  {"q":"Quanti elementi chimici compongono la molecola dell'acqua?","a":["1","2","3","4"],"c":1,"d":2},
+  {"q":"Qual è l'osso più lungo del corpo umano?","a":["Femore","Tibia","Omero","Radio"],"c":0,"d":2},
+  {"q":"Cosa misura la scala Richter?","a":["L'intensità dei venti","L'intensità dei terremoti","La pressione atmosferica","L'umidità"],"c":1,"d":2},
+  {"q":"Quale organo del corpo umano produce l'insulina?","a":["Fegato","Cervello","Pancreas","Reni"],"c":2,"d":3},
+  {"q":"Qual è la velocità della luce approssimativa?","a":["300.000 km/s","150.000 km/s","1.000.000 km/s","3.000 km/s"],"c":0,"d":3},
+  {"q":"Quale pianeta del sistema solare è famoso per i suoi visibili anelli?","a":["Nettuno","Saturno","Urano","Giove"],"c":1,"d":1},
+  {"q":"Qual è il simbolo chimico dell'oro?","a":["Fe","Ag","Au","Cu"],"c":2,"d":2},
+  {"q":"Chi ha formulato la teoria della relatività?","a":["Isaac Newton","Albert Einstein","Stephen Hawking","Niels Bohr"],"c":1,"d":2},
+  {"q":"Quale mammifero è capace di volare?","a":["Scoiattolo volante","Pipistrello","Pinguino","Delfino"],"c":1,"d":2},
+  {"q":"Qual è la principale stella del nostro sistema planetario?","a":["Sirio","Vega","Il Sole","Alpha Centauri"],"c":2,"d":1},
+  {"q":"Cosa significa l'acronimo 'WWW' nel contesto internet?","a":["World Wide Web","World Wide Word","Web Wide World","World Wave Web"],"c":0,"d":2},
+  {"q":"Qual è la temperatura di ebollizione dell'acqua a livello del mare?","a":["50°C","90°C","100°C","120°C"],"c":2,"d":1},
+  {"q":"Quale forza ci tiene ancorati alla superficie terrestre?","a":["Forza magnetica","Forza di gravità","Forza centrifuga","Forza nucleare"],"c":1,"d":1},
+  {"q":"Qual è l'animale terrestre più veloce del mondo?","a":["Leone","Ghepardo","Antilope","Cavallo"],"c":1,"d":2},
+  {"q":"Quale parte della cellula contiene il materiale genetico (DNA)?","a":["Citoplasma","Membrana","Nucleo","Mitocondrio"],"c":2,"d":3},
+  {"q":"Che tipo di corpo celeste è la Luna?","a":["Un pianeta","Un satellite naturale","Una stella","Un asteroide"],"c":1,"d":2},
+  {"q":"Quale metallo si trova allo stato liquido a temperatura ambiente?","a":["Piombo","Mercurio","Rame","Alluminio"],"c":1,"d":2},
+  {"q":"Quale azienda tecnologica ha lanciato il sistema operativo Android?","a":["Apple","Microsoft","Google","Samsung"],"c":2,"d":2},
+  {"q":"Chi ha diretto il film 'Titanic' del 1997?","a":["Steven Spielberg","James Cameron","Martin Scorsese","Christopher Nolan"],"c":1,"d":2},
+  {"q":"Quale famoso gruppo musicale britannico era composto da John, Paul, George e Ringo?","a":["The Rolling Stones","The Queen","The Beatles","Pink Floyd"],"c":2,"d":1},
+  {"q":"Quanti premi Oscar ha vinto al massimo un singolo film nella storia?","a":["11","14","9","12"],"c":0,"d":4},
+  {"q":"Chi interpreta il personaggio di Jack Sparrow nella saga 'Pirati dei Caraibi'?","a":["Brad Pitt","Johnny Depp","Tom Cruise","Leonardo DiCaprio"],"c":1,"d":2},
+  {"q":"Quale cantante è soprannominato 'Il Re del Pop'?","a":["Elvis Presley","Prince","Michael Jackson","Madonna"],"c":2,"d":1},
+  {"q":"Quale film ha vinto l'Oscar come Miglior Film nel 2024?","a":["Oppenheimer","Barbie","Poor Things","Anatomy of a Fall"],"c":0,"d":3},
+  {"q":"Chi ha composto le celebri musiche del film 'Il buono, il brutto, il cattivo'?","a":["Hans Zimmer","Ennio Morricone","John Williams","Nicola Piovani"],"c":1,"d":3},
+  {"q":"Quale serie TV ambientata nel continente immaginario di Westeros ha riscontrato un enorme successo globale?","a":["The Witcher","Breaking Bad","Il Trono di Spade","Vikings"],"c":2,"d":2},
+  {"q":"Chi è la cantante pop nota per l'epico 'Eras Tour' conclusosi di recente?","a":["Lady Gaga","Ariana Grande","Taylor Swift","Katy Perry"],"c":2,"d":2},
+  {"q":"In quale città si tiene annualmente il Festival della canzone italiana?","a":["Roma","Sanremo","Milano","Napoli"],"c":1,"d":1},
+  {"q":"Quale attore interpreta Iron Man nell'universo cinematografico Marvel?","a":["Chris Evans","Robert Downey Jr.","Chris Hemsworth","Mark Ruffalo"],"c":1,"d":1},
+  {"q":"Quale genere musicale è nato a New Orleans all'inizio del XX secolo?","a":["Rock","Jazz","Blues","Pop"],"c":1,"d":3},
+  {"q":"Chi è il regista del film 'Pulp Fiction'?","a":["Quentin Tarantino","Stanley Kubrick","Alfred Hitchcock","Ridley Scott"],"c":0,"d":2},
+  {"q":"Quale celebre cantante italiana ha vinto il Festival di Sanremo 2024 con il brano 'La noia'?","a":["Annalisa","Angelina Mango","Geolier","Emma"],"c":1,"d":4},
+  {"q":"Qual è il film d'animazione Disney con la canzone 'Let It Go' ('All'alba sorgerò')?","a":["Rapunzel","Oceania","Frozen","Ribelle"],"c":2,"d":1},
+  {"q":"Chi ha interpretato il Joker nel film 'Il cavaliere oscuro' vincendo un Oscar postumo?","a":["Joaquin Phoenix","Heath Ledger","Jack Nicholson","Jared Leto"],"c":1,"d":3},
+  {"q":"Quale strumento musicale a corde si suona tipicamente con un archetto ed è il più piccolo dell'orchestra?","a":["Viola","Violoncello","Violino","Contrabbasso"],"c":2,"d":2},
+  {"q":"Quale piattaforma streaming ha prodotto la serie di successo 'Squid Game'?","a":["Amazon Prime Video","Disney+","Netflix","Apple TV+"],"c":2,"d":1},
+  {"q":"Chi è l'autore della celebre opera lirica 'La Traviata'?","a":["Giacomo Puccini","Gioachino Rossini","Giuseppe Verdi","Vincenzo Bellini"],"c":2,"d":3},
+  {"q":"Quale attore ha vinto l'Oscar come miglior attore protagonista per il film 'The Whale'?","a":["Brendan Fraser","Austin Butler","Colin Farrell","Will Smith"],"c":0,"d":4},
+  {"q":"Dove si sono svolte le Olimpiadi Invernali del 2026?","a":["Milano-Cortina","Pechino","Vancouver","Torino"],"c":0,"d":2},
+  {"q":"Quanti giocatori di movimento scendono in campo per squadra in una partita di calcio?","a":["5","7","11","9"],"c":2,"d":1},
+  {"q":"Ogni quanti anni si disputano normalmente i Giochi Olimpici?","a":["2","3","4","5"],"c":2,"d":1},
+  {"q":"Chi ha vinto il Mondiale di Formula 1 nel 2023, 2024 e 2025?","a":["Lewis Hamilton","Max Verstappen","Charles Leclerc","Lando Norris"],"c":1,"d":4},
+  {"q":"Quale tennista italiano ha raggiunto il numero 1 del ranking mondiale ATP nel 2024 e domina la scena nel 2026?","a":["Matteo Berrettini","Jannik Sinner","Lorenzo Musetti","Fabio Fognini"],"c":1,"d":3},
+  {"q":"Qual è lo sport in cui si utilizzano i termini 'strike' e 'home run'?","a":["Cricket","Baseball","Golf","Rugby"],"c":1,"d":2},
+  {"q":"Quale squadra ha vinto il campionato di Serie A di calcio italiano nella stagione 2023/2024?","a":["Juventus","Milan","Inter","Napoli"],"c":2,"d":3},
+  {"q":"In quale sport si assegna il trofeo della 'Coppa America'?","a":["Automobilismo","Vela","Tennis","Equitazione"],"c":1,"d":3},
+  {"q":"Quale paese ospiterà i Mondiali di Calcio maschili nel 2026?","a":["Italia, Francia e Germania","USA, Canada e Messico","Brasile e Argentina","Giappone e Corea"],"c":1,"d":3},
+  {"q":"Quanti anelli compongono la bandiera olimpica?","a":["4","5","6","7"],"c":1,"d":1},
+  {"q":"Chi è considerato il più grande cestista di tutti i tempi, famoso con il numero 23 dei Chicago Bulls?","a":["LeBron James","Kobe Bryant","Michael Jordan","Shaquille O'Neal"],"c":2,"d":2},
+  {"q":"Quale pilota automobilistico detiene il record di 7 titoli mondiali in F1 a pari merito con Michael Schumacher?","a":["Max Verstappen","Lewis Hamilton","Sebastian Vettel","Fernando Alonso"],"c":1,"d":3},
+  {"q":"Quale nazione ha vinto la Coppa del Mondo FIFA di calcio maschile nel 2022 in Qatar?","a":["Francia","Brasile","Argentina","Croazia"],"c":2,"d":2},
+  {"q":"Quale stile di nuoto NON è uno dei quattro ufficiali regolamentati?","a":["Delfino","Crawl (Stile Libero)","Rana","Cagnolino"],"c":3,"d":2},
+  {"q":"Qual è la moneta ufficiale adottata dalla Croazia dal 1° gennaio 2023?","a":["Cuna","Euro","Tallero","Dinaro"],"c":1,"d":4},
+  {"q":"In quale città europea si sono tenute le Olimpiadi Estive del 2024?","a":["Londra","Parigi","Madrid","Berlino"],"c":1,"d":1},
+  {"q":"Quale famoso social network ha cambiato il suo nome e logo in 'X'?","a":["Facebook","Twitter","Instagram","TikTok"],"c":1,"d":2},
+  {"q":"Qual è il colore della maglia indossata dal leader della classifica generale al Giro d'Italia?","a":["Gialla","Rossa","Rosa","Verde"],"c":2,"d":3},
+  {"q":"Quanti minuti dura un tempo regolamentare in una partita di basket NBA?","a":["10","12","15","20"],"c":1,"d":3},
+  {"q":"In quale città italiana si terranno i Giochi del Mediterraneo del 2026?","a":["Taranto","Bari","Palermo","Napoli"],"c":0,"d":4},
+  {"q":"Qual è la capitale d'Italia?","a":["Milano","Roma","Napoli","Torino"],"c":1,"d":1},
+  {"q":"Quale pianeta è noto come Pianeta Rosso?","a":["Venere","Marte","Giove","Saturno"],"c":1,"d":1},
+  {"q":"Chi ha scritto I Promessi Sposi?","a":["Dante Alighieri","Alessandro Manzoni","Giacomo Leopardi","Italo Calvino"],"c":1,"d":2},
+  {"q":"Qual è la formula chimica dell'acqua?","a":["CO2","H2O","O2","NaCl"],"c":1,"d":2},
+  {"q":"Qual è il fiume più lungo d'Italia?","a":["Po","Tevere","Arno","Adige"],"c":0,"d":2},
+  {"q":"Quale lingua si parla principalmente in Brasile?","a":["Spagnolo","Portoghese","Francese","Inglese"],"c":1,"d":1},
+  {"q":"In quale anno Colombo arrivò in America?","a":["1492","1515","1402","1600"],"c":0,"d":2},
+  {"q":"Quale parte della pianta assorbe l'acqua dal terreno?","a":["Fiore","Foglia","Radice","Frutto"],"c":2,"d":2},
+  {"q":"Quale strumento musicale possiede normalmente 88 tasti?","a":["Violino","Pianoforte","Flauto","Tromba"],"c":1,"d":1},
+  {"q":"Quale colore si ottiene mescolando blu e giallo?","a":["Viola","Arancione","Verde","Rosso"],"c":2,"d":1},
+  {"q":"Quattro anni formano un?","a":["Biennio","Triennio","Quadriennio","Quinquennio"],"c":2,"d":2},
+  {"q":"Quale tra questi è un sistema operativo?","a":["Android","Bluetooth","Wi-Fi","USB"],"c":0,"d":2},
+  {"q":"In quale sport si usano racchetta e volano?","a":["Tennis","Badminton","Baseball","Rugby"],"c":1,"d":1},
+  {"q":"Quale organo pompa il sangue nel corpo umano?","a":["Fegato","Polmone","Cuore","Rene"],"c":2,"d":1},
+  {"q":"Quale numero romano corrisponde a 50?","a":["L","C","D","X"],"c":0,"d":1},
+  {"q":"Qual è la capitale della Francia?","a":["Lione","Marsiglia","Parigi","Nizza"],"c":2,"d":1},
+  {"q":"Chi compose Le quattro stagioni?","a":["Mozart","Vivaldi","Beethoven","Verdi"],"c":1,"d":2},
+  {"q":"Quale tra questi è un browser web?","a":["Chrome","Excel","WhatsApp","Windows"],"c":0,"d":1},
+  {"q":"Qual è la valuta del Giappone?","a":["Won","Yen","Yuan","Rupia"],"c":1,"d":1},
+  {"q":"Qual è la montagna più alta del mondo?","a":["K2","Monte Bianco","Everest","Kilimangiaro"],"c":2,"d":2},
+  {"q":"Quale simbolo rappresenta un hashtag?","a":["@","#","&","%"],"c":1,"d":1},
+  {"q":"Quale di questi è un numero primo?","a":["21","27","29","33"],"c":2,"d":2},
+  {"q":"In quale città si trova il Colosseo?","a":["Atene","Roma","Pompei","Verona"],"c":1,"d":1},
+  {"q":"Chi formulò la legge di gravitazione universale?","a":["Galileo Galilei","Isaac Newton","Albert Einstein","Marie Curie"],"c":1,"d":2},
+  {"q":"Quale stagione segue l'estate?","a":["Primavera","Autunno","Inverno","Estate"],"c":1,"d":1},
+  {"q":"Quanti giorni ha un anno bisestile?","a":["364","365","366","367"],"c":2,"d":2},
+  {"q":"Qual è l'animale più grande del pianeta?","a":["Elefante africano","Balena azzurra","Giraffa","Squalo balena"],"c":1,"d":2},
+  {"q":"Quale Paese ha una foglia d'acero sulla bandiera?","a":["Canada","Australia","Irlanda","Svezia"],"c":0,"d":1},
+  {"q":"Quale strumento misura la temperatura?","a":["Barometro","Termometro","Altimetro","Cronometro"],"c":1,"d":1},
+  {"q":"In quale città si trova la Torre pendente?","a":["Pisa","Siena","Lucca","Ravenna"],"c":0,"d":1},
+  {"q":"Quale figura geometrica ha tre lati?","a":["Quadrato","Cerchio","Triangolo","Rettangolo"],"c":2,"d":1},
+  {"q":"Quale Paese europeo ha la forma di uno stivale?","a":["Grecia","Portogallo","Italia","Croazia"],"c":2,"d":1},
+  {"q":"Quale invenzione permette di parlare a distanza?","a":["Telefono","Microscopio","Bussola","Termometro"],"c":0,"d":1},
+  {"q":"In quale sport si utilizza un canestro?","a":["Pallavolo","Basket","Golf","Nuoto"],"c":1,"d":1},
+  {"q":"Qual è la capitale della Germania?","a":["Monaco","Francoforte","Berlino","Amburgo"],"c":2,"d":1},
+  {"q":"Quale unità misura la corrente elettrica?","a":["Volt","Watt","Ampere","Ohm"],"c":2,"d":2},
+  {"q":"Quanti colori ha tradizionalmente l'arcobaleno?","a":["5","6","7","8"],"c":2,"d":2},
+  {"q":"In quale Paese si trovano le piramidi di Giza?","a":["Messico","Egitto","Perù","India"],"c":1,"d":2},
+  {"q":"Quale osso protegge il cervello?","a":["Femore","Cranio","Costola","Tibia"],"c":1,"d":1},
+  {"q":"Quale animale produce la lana?","a":["Capra","Pecora","Mucca","Maiale"],"c":1,"d":1},
+  {"q":"Qual è la capitale del Regno Unito?","a":["Londra","Edimburgo","Manchester","Cardiff"],"c":0,"d":1},
+  {"q":"Quale componente conserva file anche a PC spento?","a":["RAM","SSD","Cache","Registro CPU"],"c":1,"d":2},
+  {"q":"Quale mare separa Europa e Africa?","a":["Mediterraneo","Mar Rosso","Baltico","Caspio"],"c":0,"d":1},
+  {"q":"Chi dipinse Notte stellata?","a":["Van Gogh","Monet","Picasso","Dalí"],"c":0,"d":2},
+  {"q":"Quale animale ha otto zampe?","a":["Formica","Ragno","Granchio","Farfalla"],"c":1,"d":1},
+  {"q":"In quale città si trova la Torre Eiffel?","a":["Bruxelles","Parigi","Vienna","Praga"],"c":1,"d":1},
+  {"q":"Qual è il pianeta più grande del Sistema solare?","a":["Terra","Giove","Saturno","Nettuno"],"c":1,"d":2},
+  {"q":"Come si chiama la trasformazione dell'acqua in vapore?","a":["Condensazione","Evaporazione","Congelamento","Fusione"],"c":1,"d":1},
+  {"q":"Chi scrisse L'infinito?","a":["Leopardi","Manzoni","Pascoli","Foscolo"],"c":0,"d":2},
+  {"q":"Quale simbolo si trova normalmente nelle e-mail?","a":["#","@","*","+"],"c":1,"d":1},
+  {"q":"Quante corde ha normalmente una chitarra?","a":["4","5","6","7"],"c":2,"d":1},
+  {"q":"Quale città fu sepolta dal Vesuvio nel 79 d.C.?","a":["Ercolano","Pompei","Ostia","Paestum"],"c":1,"d":2},
+  {"q":"Qual è il gas più abbondante nell'atmosfera terrestre?","a":["Ossigeno","Azoto","Anidride carbonica","Idrogeno"],"c":1,"d":2},
+  {"q":"Quale animale è noto per cambiare colore?","a":["Camaleonte","Tigre","Panda","Delfino"],"c":0,"d":1},
+  {"q":"Qual è il continente più piccolo?","a":["Europa","Oceania","Antartide","Sud America"],"c":1,"d":2},
+  {"q":"Quale tasto cancella il carattere a sinistra del cursore?","a":["Invio","Maiusc","Backspace","Tab"],"c":2,"d":1},
+  {"q":"Chi fu il primo uomo a camminare sulla Luna?","a":["Yuri Gagarin","Neil Armstrong","Buzz Aldrin","John Glenn"],"c":1,"d":2},
+  {"q":"Quale parte dell'occhio regola la quantità di luce?","a":["Retina","Iride","Cornea","Nervo ottico"],"c":1,"d":2},
+  {"q":"Quale linguaggio struttura le pagine web?","a":["HTML","CSS","SQL","Python"],"c":0,"d":2},
+  {"q":"Quale figura ha tutti i punti alla stessa distanza dal centro?","a":["Triangolo","Cerchio","Rettangolo","Trapezio"],"c":1,"d":1},
+  {"q":"Qual è la capitale del Portogallo?","a":["Porto","Lisbona","Faro","Braga"],"c":1,"d":1},
+  {"q":"Quale di questi è un mammifero?","a":["Squalo","Delfino","Trota","Polpo"],"c":1,"d":1},
+  {"q":"Quale colore si ottiene mescolando rosso e blu?","a":["Verde","Viola","Giallo","Marrone"],"c":1,"d":1},
+  {"q":"Qual è la capitale della Grecia?","a":["Atene","Salonicco","Sparta","Creta"],"c":0,"d":1},
+  {"q":"Qual è l'unità fondamentale della vita?","a":["Atomo","Cellula","Molecola","Tessuto"],"c":1,"d":2},
+  {"q":"Chi ha creato il personaggio di Pinocchio?","a":["Carlo Collodi","Gianni Rodari","Umberto Eco","Luigi Pirandello"],"c":0,"d":2},
+  {"q":"Qual è la capitale della Norvegia?","a":["Oslo","Bergen","Stavanger","Trondheim"],"c":0,"d":1},
+  {"q":"Quale animale è un uccello?","a":["Pinguino","Balena","Rana","Lucertola"],"c":0,"d":1},
+  {"q":"Quale linguaggio serve a definire lo stile di una pagina web?","a":["CSS","JPEG","PDF","MP3"],"c":0,"d":2},
+  {"q":"Quale strumento misura la pressione atmosferica?","a":["Barometro","Termometro","Igrometro","Sismografo"],"c":0,"d":1},
+  {"q":"Qual è la capitale dell'Irlanda?","a":["Dublino","Cork","Galway","Limerick"],"c":0,"d":1},
+  {"q":"Quale pianeta viene chiamato Pianeta Blu?","a":["Terra","Marte","Giove","Venere"],"c":0,"d":1},
+  {"q":"Quale elemento chimico ha simbolo O?","a":["Oro","Ossigeno","Osmio","Ottone"],"c":1,"d":2},
+  {"q":"Qual è la capitale del Belgio?","a":["Anversa","Bruxelles","Gand","Bruges"],"c":1,"d":1},
+  {"q":"In quale stagione cadono le foglie dagli alberi decidui?","a":["Primavera","Estate","Autunno","Inverno"],"c":2,"d":1},
+  {"q":"Quale animale è considerato il re della savana africana?","a":["Leopardo","Leone","Ghepardo","Iena"],"c":1,"d":1},
+  {"q":"Quale colore si ottiene mescolando rosso e giallo?","a":["Viola","Verde","Arancione","Marrone"],"c":2,"d":1},
+  {"q":"In quale città si trova la Statua della Libertà?","a":["Boston","Washington","New York","Chicago"],"c":2,"d":1},
+  {"q":"In quale sport gli atleti si affrontano su un ring?","a":["Scherma","Pugilato","Judo","Karate"],"c":1,"d":1},
+  {"q":"Quale gas viene rilasciato dalle piante durante la fotosintesi?","a":["Anidride carbonica","Ossigeno","Azoto","Idrogeno"],"c":1,"d":2},
+  {"q":"Quale celebre fiume attraversa l'Egitto?","a":["Congo","Niger","Nilo","Zambesi"],"c":2,"d":1},
+  {"q":"Qual è il deserto caldo più esteso del mondo?","a":["Gobi","Sahara","Kalahari","Atacama"],"c":1,"d":2},
+  {"q":"Quale opera teatrale di Shakespeare racconta l'amore tra due giovani di famiglie rivali a Verona?","a":["Amleto","Macbeth","Romeo e Giulietta","Otello"],"c":2,"d":1},
+  {"q":"Qual è il vulcano più alto d'Europa, situato in Sicilia?","a":["Vesuvio","Etna","Stromboli","Vulcano"],"c":1,"d":2},
+  {"q":"Quale animale è il simbolo nazionale della Cina?","a":["Tigre","Panda gigante","Drago","Gru"],"c":1,"d":1},
+  {"q":"Chi compose l'opera lirica 'Le nozze di Figaro'?","a":["Mozart","Beethoven","Bach","Haydn"],"c":0,"d":2},
+  {"q":"Qual è il mare che bagna la costa orientale dell'Italia?","a":["Mar Ligure","Mar Adriatico","Mar Ionio","Mar Tirreno"],"c":1,"d":1},
+  {"q":"Quale scienziata vinse due premi Nobel in due discipline scientifiche diverse?","a":["Rosalind Franklin","Marie Curie","Ada Lovelace","Rita Levi-Montalcini"],"c":1,"d":2}
+];
+
+let game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
+
+function euro(n){return "€"+n.toLocaleString("it-IT")}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function saveScore(name,amount,level){
+ const scores=JSON.parse(localStorage.getItem("milionarioScores")||"[]");
+ scores.push({name:name||"Giocatore",amount,level,date:new Date().toLocaleDateString("it-IT")});
+ scores.sort((a,b)=>b.amount-a.amount); localStorage.setItem("milionarioScores",JSON.stringify(scores.slice(0,20)));
+}
+function scoresHtml(){
+ const scores=JSON.parse(localStorage.getItem("milionarioScores")||"[]");
+ if(!scores.length)return '<p>Nessun punteggio ancora.</p>';
+ const clearBtn='<button class="secondary" style="width:100%;margin-bottom:10px" onclick="clearScores()">🗑️ Cancella classifica</button>';
+ return clearBtn+'<div class="score-list">'+scores.map((s,i)=>`<div class="score-row"><span><b>${escapeHtml(s.name)}</b><br><small>${s.date} · livello ${s.level}/15</small></span><strong>${euro(s.amount)}</strong></div>`).join('')+'</div>';
+}
+function clearScores(){
+  if(confirm("Cancellare tutta la classifica dei punteggi salvati?")){
+    localStorage.removeItem("milionarioScores");
+    document.getElementById("modalBody").innerHTML=scoresHtml();
+  }
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function openMenu(){playSound('click');document.getElementById("menuModal").classList.add("show")}
+function closeMenu(){playSound('click');document.getElementById("menuModal").classList.remove("show")}
+function showGuide(){openModal("Guida del gioco",`<p><b>Obiettivo:</b> rispondi correttamente a 15 domande e prova ad arrivare a €1.000.000.</p><p><b>Aiuti:</b> 50:50 elimina due risposte; Pubblico mostra una stima dei voti; Esperto suggerisce una risposta.</p><p>Puoi fermarti in qualsiasi momento e conservare il premio raggiunto. I punteggi vengono salvati sul dispositivo.</p>`)}
+function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">2.2</span></p><p>App creata da Miki by Claude</p>`)}
+function saveRecord(v){localStorage.setItem("milionarioRecord",Math.max(v,+localStorage.getItem("milionarioRecord")||0))}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function renderPrizes(){let el=document.getElementById("prizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;let safe=level===4||level===9;return `<div class="prize ${level===game.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`}).join("")}
+
+function tierFor(level){ if(level>=13) return 3; if(level>=10) return 2; if(level>=5) return 1; return 0; }
+function setTension(level){ document.documentElement.style.setProperty('--t', tierFor(level)); }
+
+function pickQuestion(){
+  let target=Math.min(5,Math.floor(game.level/3)+1);
+  let pool=questions.filter((q,i)=>!game.used.has(i)&&Math.abs(q.d-target)<=1);
+  if(!pool.length) pool=questions.filter((q,i)=>!game.used.has(i));
+  let idx=questions.indexOf(pool[Math.floor(Math.random()*pool.length)]);
+  game.used.add(idx);game.current=questions[idx];
+}
+function loadQuestion(){
+  game.locked=false; stopSpeech(); pickQuestion();
+  setTension(game.level);
+  document.getElementById("money").textContent=euro(prizes[game.level]);
+  document.getElementById("progress").style.width=((game.level+1)/15*100)+"%";
+  renderPrizes();
+  document.getElementById("question").textContent=game.current.q;
+  document.getElementById("status").textContent="";
+  const letters=["A","B","C","D"], box=document.getElementById("answers");box.innerHTML="";
+  game.current.a.forEach((x,i)=>{let b=document.createElement("button");b.className="answer";b.innerHTML=`<b>${letters[i]}</b>${x}`;b.onclick=()=>answer(i,b);box.appendChild(b)});
+}
+function answer(i,btn){
+ if(game.locked)return;
+ game.locked=true;
+ playSound('select');
+ btn.classList.add("selected");
+ 
+ setTimeout(()=>{
+   const all=[...document.querySelectorAll(".answer")];
+   btn.classList.remove("selected");
+   all[game.current.c].classList.add("correct");
+   if(i!==game.current.c){
+     btn.classList.add("wrong");
+     playSound('wrong');
+     game.won=game.level>=10?prizes[9]:game.level>=4?prizes[4]:0; 
+     setTimeout(()=>finish(false),1200);
+   } else {
+     playSound('correct');
+     game.won=prizes[game.level]; 
+     game.level++;
+     if(game.level>=15){
+       setTimeout(()=>finish(true),1200);
+     } else {
+       setTimeout(loadQuestion,1200);
+     }
+   }
+ }, 1000);
+}
+function celebrate(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const layer=document.createElement('div');layer.id='confetti';document.body.appendChild(layer);
+  const emojis=['🎉','⭐','💰','✨'];
+  for(let i=0;i<40;i++){
+    const s=document.createElement('span');
+    s.textContent=emojis[i%emojis.length];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(2.5+Math.random()*2)+'s';
+    s.style.animationDelay=(Math.random()*0.6)+'s';
+    s.style.fontSize=(16+Math.random()*18)+'px';
+    layer.appendChild(s);
+  }
+  setTimeout(()=>layer.remove(),5200);
+}
+function finish(win){ stopSpeech(); saveScore(playerName,game.won,Math.min(game.level,15));
+ saveRecord(game.won);document.getElementById("resultTitle").textContent=win?"HAI VINTO! 🏆":"PARTITA TERMINATA";
+ document.getElementById("resultAmount").textContent=euro(game.won);
+ document.getElementById("resultText").textContent=(playerName?escapeHtml(playerName)+", ":"")+(win?"incredibile: hai raggiunto il milione!":"il tuo incasso è stato salvato nei punteggi.");
+ show("result");
+ setTension(0);
+ if(win) celebrate();
+ document.getElementById("record").textContent="Record: "+euro(+localStorage.getItem("milionarioRecord")||0);
+}
+function useFifty(){
+ if(!game.helps.fifty||game.locked)return;playSound('click');game.helps.fifty=false;document.getElementById("fifty").disabled=true;
+ let wrong=[0,1,2,3].filter(i=>i!==game.current.c);shuffle(wrong).slice(0,2).forEach(i=>document.querySelectorAll(".answer")[i].classList.add("dim"));
+}
+function useAudience(){
+ if(!game.helps.audience||game.locked)return;playSound('click');game.helps.audience=false;document.getElementById("audience").disabled=true;
+ let c=game.current.c, vals=[0,0,0,0];vals[c]=65+Math.floor(Math.random()*21);let rem=100-vals[c];let others=[0,1,2,3].filter(i=>i!==c);let x=Math.floor(Math.random()*(rem+1)),y=Math.floor(Math.random()*(rem-x+1));vals[others[0]]=x;vals[others[1]]=y;vals[others[2]]=rem-x-y;
+ openModal("Voto del pubblico",vals.map((v,i)=>`<div style="text-align:left"><b>${"ABCD"[i]}</b> ${v}%</div><div class="bar"><i style="width:${v}%"></i></div>`).join(""));
+}
+function useExpert(){
+ if(!game.helps.expert||game.locked)return;playSound('click');game.helps.expert=false;document.getElementById("expert").disabled=true;
+ openModal("L'esperto pensa…",`La risposta più probabile è <strong>${"ABCD"[game.current.c]}</strong> — <em>${game.current.a[game.current.c]}</em>.`);
+}
+function openModal(t,b){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b;document.getElementById("modal").classList.add("show")}
+
+document.getElementById("audioToggleBtn").onclick=()=>{
+  soundEnabled = !soundEnabled;
+  document.getElementById("audioToggleBtn").textContent = soundEnabled ? "🔊" : "🔇";
+};
+document.getElementById("menuBtn").onclick=()=>openMenu();
+document.getElementById("menuClose").onclick=()=>closeMenu();
+document.getElementById("guideBtn").onclick=()=>{closeMenu();showGuide()};
+document.getElementById("infoBtn").onclick=()=>{closeMenu();showInfo()};
+document.getElementById("scoresBtn").onclick=()=>{closeMenu();openModal("Punteggi salvati",scoresHtml())};
+document.getElementById("scoresHomeBtn").onclick=()=>{playSound('click');openModal("Punteggi salvati",scoresHtml())};
+document.getElementById("readQuestion").onclick=()=>{playSound('click');speakQuestion();};
+document.getElementById("playerName").addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('startBtn').click(); } });
+document.getElementById("startBtn").onclick=()=>{playSound('click');playerName=(document.getElementById("playerName").value||"").trim(); if(!playerName){document.getElementById("playerName").focus(); return;} game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false}; ["fifty","audience","expert"].forEach(x=>document.getElementById(x).disabled=false);show("game");loadQuestion()};
+document.getElementById("againBtn").onclick=()=>{playSound('click');document.getElementById("startBtn").click();};
+document.getElementById("homeBtn").onclick=()=>{playSound('click');stopSpeech();setTension(0);show("start");document.getElementById("record").textContent="Record: "+euro(+localStorage.getItem("milionarioRecord")||0)};
+document.getElementById("resetBtn").onclick=()=>{playSound('click');localStorage.removeItem("milionarioRecord");document.getElementById("record").textContent="Record azzerato."};
+document.getElementById("fifty").onclick=useFifty;document.getElementById("audience").onclick=useAudience;document.getElementById("expert").onclick=useExpert;
+document.getElementById("modalClose").onclick=()=>{playSound('click');document.getElementById("modal").classList.remove("show");};
+document.getElementById("walkBtn").onclick=()=>{if(!game.locked){playSound('click');game.locked=true;game.won=game.level?prizes[game.level-1]:0;finish(false)}};
+document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click', e=>{ if(e.target===m){ playSound('click'); m.classList.remove('show'); } }); });
+document.getElementById("record").textContent="Record: "+euro(+localStorage.getItem("milionarioRecord")||0);
+if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+</script>
+</body>
+</html>
