@@ -105,6 +105,7 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
   <input id="playerName" maxlength="24" placeholder="Il tuo nome" autocomplete="name" style="width:min(420px,90%);padding:15px 16px;border-radius:15px;border:1px solid #315b9e;background:#0b2455;color:white;text-align:center;font-size:17px;outline:none">
   <button class="primary" id="startBtn">INIZIA LA PARTITA</button>
   <button class="secondary" id="scoresHomeBtn">🏆 Punteggi salvati</button>
+  <button class="secondary" id="econSetupBtn">🎓 Economia &amp; Finanza (universitario)</button>
   <button class="secondary" id="resetBtn">Azzera record</button>
   <div id="record" class="subtitle"></div>
 </section>
@@ -138,6 +139,34 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
   <div class="subtitle" id="resultText"></div>
   <button class="primary" id="againBtn">NUOVA PARTITA</button>
   <button class="secondary" id="homeBtn">Torna al menu</button>
+</section>
+
+<section id="econ" class="screen">
+  <div class="top">
+    <div class="brand">🎓 ECONOMIA &amp; FINANZA</div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <button class="help" id="econMenuBtn" aria-label="Torna al menu" style="min-height:42px;padding:7px 10px;font-size:18px">✕</button>
+      <div class="money" id="econScoreTop">0/0</div>
+    </div>
+  </div>
+  <div class="lifelines">
+    <button class="help" id="econFifty">50:50</button>
+    <button class="help" id="econAudience">👥 Pubblico</button>
+    <button class="help" id="econExpert">📞 Esperto</button>
+  </div>
+  <div class="progress"><i id="econProgress"></i></div>
+  <div class="question" id="econQuestion"></div>
+  <button class="secondary" id="econReadQuestion" style="margin:-4px 0 12px">🔊 Leggi la domanda</button>
+  <div class="answers" id="econAnswers"></div>
+  <div class="status" id="econStatus"></div>
+</section>
+
+<section id="econResult" class="screen result">
+  <div class="logo">🎓</div><h1 id="econResultTitle">Quiz completato!</h1>
+  <div class="amount" id="econResultAmount">0/0</div>
+  <div class="subtitle" id="econResultText"></div>
+  <button class="primary" id="econAgainBtn">RIFAI IL QUIZ</button>
+  <button class="secondary" id="econHomeBtn">Torna al menu</button>
 </section>
 </div>
 
@@ -191,10 +220,11 @@ function playSound(type) {
 }
 
 function stopSpeech(){ if("speechSynthesis" in window) speechSynthesis.cancel(); }
-function speakQuestion(){
+function speakQuestion(elId){
+  elId = elId || "question";
   if(!("speechSynthesis" in window)){ openModal("Voce non disponibile","Il tuo browser non mette a disposizione la lettura vocale."); return; }
   stopSpeech();
-  const text = document.getElementById("question").textContent;
+  const text = document.getElementById(elId).textContent;
   const u = new SpeechSynthesisUtterance(text);
   u.lang="it-IT"; u.rate=0.92; u.pitch=1;
   const voices=speechSynthesis.getVoices();
@@ -400,6 +430,159 @@ const questions=[
   {"q":"Quale scienziata vinse due premi Nobel in due discipline scientifiche diverse?","a":["Rosalind Franklin","Marie Curie","Ada Lovelace","Rita Levi-Montalcini"],"c":1,"d":2}
 ];
 
+const econQuestions=[
+  {"q":"Cosa misura il PIL (Prodotto Interno Lordo)?","a":["Il valore delle sole esportazioni nette","Il totale delle tasse raccolte dallo Stato","La quantità di moneta in circolazione","Il valore di tutti i beni e servizi finali prodotti in un paese in un periodo"],"c":3,"d":2},
+  {"q":"Chi decide i tassi di interesse ufficiali nell'Eurozona?","a":["La Banca Mondiale","Il Parlamento Europeo","La Banca Centrale Europea (BCE)","La Commissione Europea"],"c":2,"d":2},
+  {"q":"Come si definisce l'inflazione?","a":["Una diminuzione della disoccupazione","Una riduzione del debito pubblico","Un aumento del PIL reale","Un aumento generalizzato e persistente dei prezzi"],"c":3,"d":1},
+  {"q":"Come si chiama il fenomeno di un calo generalizzato e persistente dei prezzi?","a":["Stagflazione","Disinflazione","Deflazione","Svalutazione"],"c":2,"d":2},
+  {"q":"Cosa indica il tasso di cambio nominale tra due valute?","a":["Il tasso di interesse medio di un paese","Il valore delle esportazioni nette","La quantità di riserve valutarie di una banca centrale","Il rapporto di conversione tra due valute senza correggere per i livelli dei prezzi"],"c":3,"d":3},
+  {"q":"Qual è il principale strumento di politica monetaria convenzionale della BCE?","a":["Le aliquote IVA","Le tariffe doganali","La spesa pubblica","Il tasso di interesse di riferimento sulle operazioni di rifinanziamento"],"c":3,"d":2},
+  {"q":"Cos'è il Quantitative Easing?","a":["Un accordo commerciale tra Stati","Un aumento delle tasse per ridurre l'inflazione","Un programma di acquisto di titoli su larga scala per immettere liquidità nel sistema","Una svalutazione competitiva della valuta"],"c":2,"d":3},
+  {"q":"Cosa misura l'indice IPCA (o HICP)?","a":["La crescita del PIL reale","Il debito pubblico in rapporto al PIL","L'inflazione armonizzata nei paesi dell'area euro","Il tasso di disoccupazione europeo"],"c":2,"d":3},
+  {"q":"Qual è una delle funzioni principali del Fondo Monetario Internazionale (FMI)?","a":["Fornire assistenza finanziaria e sorvegliare la stabilità monetaria internazionale","Regolare le borse valori nazionali","Emettere l'euro come moneta unica","Fissare i tassi di cambio fissi globali"],"c":0,"d":2},
+  {"q":"Cosa si intende per 'output gap'?","a":["Il divario tra tassi di interesse a breve e lungo termine","La differenza tra spesa pubblica ed entrate fiscali","La differenza tra PIL effettivo e PIL potenziale","La differenza tra esportazioni e importazioni"],"c":2,"d":3},
+  {"q":"Cosa descrive la curva di Phillips?","a":["La relazione tra PIL e tasso di cambio","La relazione tra tassi di interesse e investimenti","La curva dei rendimenti obbligazionari","Una relazione storicamente inversa tra inflazione e disoccupazione"],"c":3,"d":3},
+  {"q":"Cos'è la cosiddetta 'trappola della liquidità'?","a":["Una svalutazione incontrollata della moneta","Un eccesso di domanda di beni rispetto all'offerta","Una crisi bancaria causata da eccesso di prestiti","Una situazione in cui la politica monetaria espansiva perde efficacia perché i tassi sono già vicini allo zero"],"c":3,"d":4},
+  {"q":"Chi ha teorizzato l'ipotesi del reddito permanente per spiegare il consumo?","a":["Robert Solow","John Maynard Keynes","Milton Friedman","Paul Krugman"],"c":2,"d":3},
+  {"q":"Cosa regola il Patto di Stabilità e Crescita nell'Unione Europea?","a":["I tassi di cambio tra le valute europee","Le aliquote fiscali armonizzate sulle imprese","Le quote di importazione tra Stati membri","I limiti su deficit e debito pubblico degli Stati membri"],"c":3,"d":2},
+  {"q":"Cosa indica il moltiplicatore fiscale (o keynesiano)?","a":["Di quanto varia il PIL a seguito di una variazione della spesa pubblica","Il rapporto tra debito pubblico e PIL","Il tasso di crescita della popolazione","La percentuale di tasse sul reddito"],"c":0,"d":3},
+  {"q":"Cos'è la stagflazione?","a":["Un aumento della disoccupazione senza inflazione","La coesistenza di stagnazione economica (bassa crescita) e inflazione elevata","Un periodo di deflazione prolungata","Una fase di forte crescita economica con bassa inflazione"],"c":1,"d":3},
+  {"q":"Qual è il mandato principale della BCE, secondo i trattati europei?","a":["Il pieno impiego della forza lavoro","La stabilità del tasso di cambio dell'euro","La crescita massima del PIL","Il mantenimento della stabilità dei prezzi"],"c":3,"d":2},
+  {"q":"Cosa misura il tasso di cambio reale tra due valute?","a":["Il tasso di interesse ufficiale di un paese","Il valore nominale della moneta senza aggiustamenti","Il potere d'acquisto relativo tra due valute, corretto per i livelli di prezzo","La quantità di riserve auree di una banca centrale"],"c":2,"d":4},
+  {"q":"Cosa afferma l'ipotesi delle 'aspettative razionali' in macroeconomia?","a":["I prezzi sono fissati esclusivamente dallo Stato","Le aspettative non influenzano le decisioni economiche","Gli agenti economici agiscono sempre in modo irrazionale","Gli agenti economici usano tutta l'informazione disponibile per formare previsioni non sistematicamente distorte"],"c":3,"d":4},
+  {"q":"Cos'è il signoraggio?","a":["Il guadagno che uno Stato o una banca centrale ottiene dall'emissione di moneta","Un'imposta sulle transazioni finanziarie internazionali","Il rendimento medio dei titoli di Stato","Il costo di gestione del sistema bancario"],"c":0,"d":4},
+  {"q":"Cosa caratterizza una politica fiscale espansiva?","a":["Aumento della spesa pubblica e/o riduzione delle tasse per stimolare la domanda","Aumento dei tassi di interesse ufficiali","Restrizioni sulle importazioni","Riduzione della spesa pubblica per contenere il debito"],"c":0,"d":2},
+  {"q":"Quale effetto ha generalmente un aumento dei tassi di interesse sulla domanda aggregata?","a":["La riduce, scoraggiando investimenti e consumi","Aumenta solo le esportazioni nette","Non ha alcun effetto misurabile","La aumenta, incentivando i prestiti"],"c":0,"d":3},
+  {"q":"Cosa misura la bilancia dei pagamenti di un paese?","a":["Solo il saldo del bilancio dello Stato","Il valore del PIL pro capite","Il debito pubblico accumulato","Le transazioni economiche complessive con il resto del mondo"],"c":3,"d":3},
+  {"q":"Cosa afferma il 'trilemma di Mundell' (o triangolo delle incompatibilità)?","a":["Il commercio internazionale riduce sempre il benessere nazionale","La politica fiscale è sempre più efficace di quella monetaria","Non è possibile avere contemporaneamente cambi fissi, libera circolazione dei capitali e politica monetaria indipendente","Un paese non può avere sia inflazione che disoccupazione basse"],"c":2,"d":4},
+  {"q":"Chi ha sviluppato il modello macroeconomico IS-LM a partire dalle idee di Keynes?","a":["Paul Samuelson","John Hicks","Milton Friedman","Joseph Stiglitz"],"c":1,"d":4},
+  {"q":"Cosa rappresenta la curva IS nel modello IS-LM?","a":["Le combinazioni di reddito e tasso di interesse per cui il mercato della moneta è in equilibrio","La relazione tra tasso di cambio e bilancia commerciale","Le combinazioni di reddito e tasso di interesse per cui il mercato dei beni è in equilibrio","La relazione tra inflazione e disoccupazione"],"c":2,"d":4},
+  {"q":"Cosa rappresenta la curva LM nel modello IS-LM?","a":["La curva dei rendimenti obbligazionari","Il livello di piena occupazione dell'economia","Le combinazioni di reddito e tasso di interesse per cui il mercato dei beni è in equilibrio","Le combinazioni di reddito e tasso di interesse per cui il mercato della moneta è in equilibrio"],"c":3,"d":4},
+  {"q":"Cos'è la 'forward guidance' delle banche centrali?","a":["Un intervento diretto sul tasso di cambio","Un accordo tra banche centrali per fissare i cambi","La comunicazione delle intenzioni future di politica monetaria per orientare le aspettative dei mercati","Un prestito di emergenza alle banche in difficoltà"],"c":2,"d":3},
+  {"q":"Cosa indica lo spread BTP-Bund?","a":["Il rapporto debito/PIL relativo tra Italia e Germania","La differenza tra tasso di cambio euro-dollaro","Il differenziale di rendimento tra i titoli di Stato italiani e quelli tedeschi","Il divario tra inflazione italiana e tedesca"],"c":2,"d":2},
+  {"q":"Qual è l'obiettivo di inflazione di medio termine dichiarato dalla BCE?","a":["2%","0%","4%","5%"],"c":0,"d":2},
+  {"q":"Cosa rappresenta il WACC?","a":["Il rendimento minimo garantito agli azionisti","Il costo medio ponderato del capitale, tra debito ed equity","Il valore contabile del capitale sociale","Il tasso di crescita atteso dei ricavi"],"c":1,"d":3},
+  {"q":"Cosa misura il Valore Attuale Netto (VAN/NPV) di un progetto?","a":["La differenza tra il valore attuale dei flussi di cassa futuri e l'investimento iniziale","Il valore contabile dell'attivo dell'impresa","Il tempo necessario per recuperare l'investimento","Il tasso interno di rendimento del progetto"],"c":0,"d":3},
+  {"q":"Cos'è il Tasso Interno di Rendimento (TIR/IRR) di un progetto?","a":["Il tasso di sconto che rende il VAN del progetto pari a zero","Il tasso di interesse pagato sul debito dell'impresa","Il rendimento medio storico del settore","Il tasso di inflazione atteso"],"c":0,"d":3},
+  {"q":"Cosa rappresenta la leva finanziaria (financial leverage)?","a":["La quota di utili distribuiti come dividendi","La capitalizzazione di borsa di un'impresa","L'uso del debito per finanziare gli investimenti, amplificando rischio e rendimento per gli azionisti","Il rapporto tra attività correnti e passività correnti"],"c":2,"d":3},
+  {"q":"Cos'è il capital budgeting?","a":["La pianificazione della liquidità di breve periodo","La redazione del bilancio annuale","Il processo di valutazione e selezione degli investimenti di lungo termine di un'impresa","La gestione del capitale circolante"],"c":2,"d":2},
+  {"q":"Cosa afferma il Teorema di Modigliani-Miller in un mondo senza imposte e frizioni?","a":["Il debito riduce sempre il valore dell'impresa","Solo l'equity può finanziare gli investimenti","Il valore dell'impresa dipende solo dai dividendi pagati","Il valore di un'impresa è indipendente dalla sua struttura finanziaria"],"c":3,"d":4},
+  {"q":"Secondo il CAPM, come si stima il costo dell'equity?","a":["Il tasso di interesse medio sul debito dell'impresa","Tasso privo di rischio più il beta moltiplicato per il premio per il rischio di mercato","La media storica dei dividendi distribuiti","Il costo del debito diviso per il rapporto debito/equity"],"c":1,"d":4},
+  {"q":"Cosa misura il beta di un titolo azionario?","a":["La sensibilità del rendimento del titolo rispetto ai movimenti del mercato","Il rischio di insolvenza dell'emittente","Il rendimento medio storico del titolo","La liquidità di scambio del titolo in borsa"],"c":0,"d":3},
+  {"q":"Cos'è il Free Cash Flow to Firm (FCFF)?","a":["Il flusso di cassa disponibile solo per gli azionisti","Il flusso di cassa disponibile per tutti i finanziatori dell'impresa, debito ed equity","Il flusso di cassa generato dalla sola attività finanziaria","L'utile netto dell'esercizio"],"c":1,"d":4},
+  {"q":"Cos'è il payback period di un investimento?","a":["La durata residua di un'obbligazione","Il tasso di rendimento medio annuo dell'investimento","Il valore attuale netto dell'investimento","Il tempo necessario affinché i flussi di cassa ripaghino l'esborso iniziale"],"c":3,"d":2},
+  {"q":"Cosa indica il rapporto Debt/Equity di un'impresa?","a":["Il margine operativo lordo","La redditività del capitale investito","Il grado di indebitamento rispetto al capitale proprio","La liquidità disponibile a breve termine"],"c":2,"d":2},
+  {"q":"Cos'è un'obbligazione (bond) dal punto di vista dell'emittente?","a":["Un contratto derivato su tassi di cambio","Un titolo che rappresenta una quota di proprietà dell'impresa","Un titolo di debito che obbliga a pagare interessi e a rimborsare il capitale","Un diritto di voto in assemblea"],"c":2,"d":1},
+  {"q":"Cosa succede al prezzo di un'obbligazione a tasso fisso quando i tassi di mercato salgono?","a":["Dipende solo dal rating dell'emittente","Il prezzo sale","Il prezzo resta invariato","Il prezzo scende"],"c":3,"d":3},
+  {"q":"Cos'è la duration di un'obbligazione?","a":["Il rating assegnato dall'agenzia di rating","Una misura della sensibilità del prezzo alle variazioni dei tassi di interesse","Il rendimento cedolare annuo","Il numero di anni residui alla scadenza"],"c":1,"d":4},
+  {"q":"Cos'è un'OPA (Offerta Pubblica di Acquisto)?","a":["Un'emissione di nuove azioni sul mercato primario","Un'offerta rivolta agli azionisti per acquisire una quota o il controllo di una società quotata","Una fusione tra due società paritetiche","Un piano di stock option per i dipendenti"],"c":1,"d":2},
+  {"q":"Cosa sono i dividendi?","a":["Le imposte pagate sul reddito d'impresa","La parte di utile distribuita agli azionisti","I costi di ammortamento annuali","Gli interessi pagati sulle obbligazioni"],"c":1,"d":1},
+  {"q":"Cosa misura l'EBITDA?","a":["Il fatturato totale dell'impresa","L'utile netto dopo le imposte","Il flusso di cassa disponibile per gli azionisti","L'utile prima di interessi, imposte, ammortamenti e svalutazioni"],"c":3,"d":2},
+  {"q":"Cosa misura il ROE (Return on Equity)?","a":["Il rendimento complessivo di tutte le attività dell'impresa","Il costo medio del debito","La redditività del capitale proprio investito dagli azionisti","Il margine sulle vendite"],"c":2,"d":2},
+  {"q":"Cosa misura il ROI/ROIC (Return on Invested Capital)?","a":["Il tasso di crescita dei ricavi","Il rendimento generato dal capitale investito nell'attività operativa","La redditività del solo capitale proprio","Il rapporto tra debito e patrimonio netto"],"c":1,"d":3},
+  {"q":"Cos'è un'operazione di Leveraged Buyout (LBO)?","a":["La quotazione in borsa di una nuova società","La fusione paritetica di due imprese","La distribuzione straordinaria di dividendi","L'acquisizione di un'azienda finanziata prevalentemente con debito"],"c":3,"d":4},
+  {"q":"Cosa si intende per 'asimmetria informativa' in finanza aziendale?","a":["Una discrepanza tra valore di mercato e valore nominale delle azioni","Una differenza tra utile contabile e utile fiscale","Uno squilibrio tra attività e passività a breve termine","Una situazione in cui una parte, ad esempio il management, dispone di più informazioni dell'altra, ad esempio gli investitori"],"c":3,"d":4},
+  {"q":"Cosa afferma la teoria del 'pecking order' sulle fonti di finanziamento?","a":["Le imprese preferiscono sempre finanziarsi con nuova equity","Le imprese distribuiscono sempre tutti gli utili come dividendi","Il debito è sempre la fonte di finanziamento meno costosa","Le imprese preferiscono prima gli utili non distribuiti, poi il debito, infine la nuova equity"],"c":3,"d":4},
+  {"q":"Cos'è uno spin-off aziendale?","a":["La separazione di una divisione o controllata in una società indipendente","La quotazione simultanea in più borse","Il riacquisto di azioni proprie sul mercato","L'acquisizione ostile di un concorrente"],"c":0,"d":3},
+  {"q":"Cosa indica l' 'hurdle rate' in un progetto di investimento?","a":["Il rendimento minimo richiesto affinché un progetto sia accettato","Il tasso di inflazione atteso nel periodo di investimento","Il rendimento medio storico del settore","Il tasso di interesse pagato sui prestiti bancari"],"c":0,"d":3},
+  {"q":"Cos'è il valore terminale (terminal value) in una valutazione DCF?","a":["La somma dei dividendi storicamente distribuiti","Il valore dei flussi di cassa attesi oltre l'orizzonte esplicito di previsione","Il valore di liquidazione immediata dell'impresa","Il valore contabile finale dell'impresa a bilancio"],"c":1,"d":4},
+  {"q":"Cosa misura il multiplo EV/EBITDA?","a":["Il valore dell'impresa (Enterprise Value) rispetto al suo margine operativo lordo","Il rendimento del capitale proprio","Il rapporto tra utile netto e fatturato","Il rapporto tra debito e patrimonio netto"],"c":0,"d":3},
+  {"q":"Cos'è il rischio sistematico in finanza?","a":["Il rischio di mercato non eliminabile tramite diversificazione","Il rischio specifico di una singola impresa","Il rischio di cambio valutario","Il rischio operativo di un singolo progetto"],"c":0,"d":3},
+  {"q":"Cos'è il rischio specifico (o idiosincratico) di un titolo?","a":["Il rischio comune a tutto il mercato","Il rischio di cambio tra due valute","Il rischio di liquidità di un intero settore","Il rischio proprio di una singola impresa, eliminabile con la diversificazione"],"c":3,"d":3},
+  {"q":"Cosa rappresenta il tasso privo di rischio (risk-free rate) nei modelli di valutazione?","a":["Il tasso di inflazione atteso","Il costo del capitale proprio di un'impresa quotata","Il tasso medio dei prestiti bancari alle imprese","Il rendimento di un investimento teoricamente privo di rischio di insolvenza, es. titoli di Stato"],"c":3,"d":2},
+  {"q":"Cos'è una 'poison pill' in un'operazione di M&A?","a":["Un tipo di obbligazione convertibile in azioni","Una misura difensiva che rende più costosa o difficile un'acquisizione ostile","Un incentivo fiscale per gli investitori esteri","Una clausola che obbliga alla fusione tra due società"],"c":1,"d":4},
+  {"q":"Cosa misura la volatilità di un titolo finanziario?","a":["Il rendimento medio storico","Il valore nominale dell'azione","La capitalizzazione di mercato","La deviazione standard dei suoi rendimenti"],"c":3,"d":3},
+  {"q":"Cos'è la diversificazione di portafoglio?","a":["La vendita allo scoperto di tutte le posizioni","L'acquisto esclusivo di titoli di Stato","La riduzione del rischio combinando attività non perfettamente correlate","L'investimento in un unico titolo ad alto rendimento"],"c":2,"d":2},
+  {"q":"Cosa afferma la Modern Portfolio Theory di Markowitz?","a":["Bisogna investire sempre nel titolo con il rendimento atteso più alto","Il rischio di un portafoglio è la somma semplice dei rischi dei singoli titoli","Gli investitori dovrebbero ottimizzare il rapporto rischio-rendimento dell'intero portafoglio, non dei singoli titoli","La diversificazione non riduce il rischio di portafoglio"],"c":2,"d":4},
+  {"q":"Cos'è la frontiera efficiente in teoria di portafoglio?","a":["L'insieme dei portafogli che offrono il massimo rendimento atteso per ogni livello di rischio","L'insieme dei titoli con beta uguale a 1","Il limite massimo di leva finanziaria consentito","La curva dei rendimenti delle obbligazioni"],"c":0,"d":4},
+  {"q":"Cosa afferma l'ipotesi dei mercati efficienti (EMH)?","a":["Gli investitori istituzionali battono sempre il mercato","I prezzi degli asset riflettono tutte le informazioni disponibili","I prezzi si muovono solo in base all'analisi tecnica","I mercati finanziari sono sempre prevedibili"],"c":1,"d":3},
+  {"q":"Cos'è un'opzione call?","a":["Un titolo di debito a breve termine","Un contratto che obbliga a vendere un'attività a un prezzo prefissato","Un contratto che dà il diritto, non l'obbligo, di acquistare un'attività a un prezzo prefissato","Un contratto future standardizzato"],"c":2,"d":3},
+  {"q":"Cos'è un'opzione put?","a":["Un contratto che obbliga ad acquistare un'attività a un prezzo prefissato","Un'azione privilegiata senza diritto di voto","Un contratto che dà il diritto, non l'obbligo, di vendere un'attività a un prezzo prefissato","Un titolo di Stato indicizzato all'inflazione"],"c":2,"d":3},
+  {"q":"A cosa serve il modello di Black-Scholes?","a":["A prevedere il PIL futuro di un paese","A calcolare il rating creditizio di un'obbligazione","A determinare il tasso di cambio di equilibrio","A stimare il prezzo teorico di un'opzione europea"],"c":3,"d":4},
+  {"q":"Cos'è un contratto future?","a":["Un accordo standardizzato per comprare o vendere un'attività a un prezzo fissato in una data futura","Un fondo comune di investimento aperto","Un prestito bancario a tasso variabile","Un'azione ordinaria quotata in borsa"],"c":0,"d":3},
+  {"q":"Cosa significa 'vendere allo scoperto' (andare short) su un titolo?","a":["Acquistare un titolo con leva finanziaria","Vendere un titolo preso in prestito, scommettendo su un calo del suo prezzo","Comprare un'opzione call sul titolo","Sottoscrivere un'obbligazione a tasso fisso"],"c":1,"d":3},
+  {"q":"Cos'è un ETF (Exchange Traded Fund)?","a":["Un contratto derivato over-the-counter","Un'obbligazione emessa da uno Stato estero","Un tipo di conto di deposito bancario","Un fondo quotato in borsa che solitamente replica un indice di mercato"],"c":3,"d":2},
+  {"q":"Cosa misura l'indice VIX?","a":["Il tasso di cambio euro-dollaro","Il rendimento medio dei titoli di Stato USA","La volatilità attesa del mercato azionario statunitense (S&P 500)","L'inflazione attesa negli Stati Uniti"],"c":2,"d":4},
+  {"q":"Cos'è il rating creditizio di un emittente?","a":["Il tasso di cambio della sua valuta nazionale","Il livello del suo indebitamento pubblico in valore assoluto","Una valutazione della sua capacità di ripagare il debito","Il prezzo di mercato delle sue azioni"],"c":2,"d":2},
+  {"q":"Cosa indica un rating creditizio di livello 'investment grade'?","a":["L'assenza totale di rischio","Un rischio di credito relativamente basso","Un'obbligazione priva di cedola","Un rischio di credito molto elevato (titolo speculativo)"],"c":1,"d":3},
+  {"q":"Cos'è lo spread creditizio (credit spread)?","a":["La differenza tra tasso fisso e tasso variabile","La differenza di rendimento tra un'obbligazione rischiosa e un titolo privo di rischio comparabile","La differenza tra prezzo di acquisto e di vendita di un titolo","Il margine di profitto di una banca su un prestito"],"c":1,"d":3},
+  {"q":"Cosa rappresenta la curva dei rendimenti (yield curve)?","a":["L'andamento storico di un indice azionario","La relazione tra inflazione e tassi di cambio","La relazione tra prezzo e volume di scambio di un titolo","La relazione tra i rendimenti delle obbligazioni e la loro scadenza"],"c":3,"d":3},
+  {"q":"Cosa indica una curva dei rendimenti invertita?","a":["I tassi a lungo termine sono sempre più alti di quelli a breve","Il mercato obbligazionario è in forte espansione","Tutti i tassi di interesse sono uguali indipendentemente dalla scadenza","I tassi a breve termine sono più alti di quelli a lungo termine, spesso segnale di recessione"],"c":3,"d":4},
+  {"q":"Cos'è l'arbitraggio in finanza?","a":["Un investimento ad alto rischio su un singolo titolo","La vendita simultanea di più titoli in perdita","Un prestito concesso da una banca centrale","Lo sfruttamento di differenze di prezzo dello stesso attivo su mercati diversi, senza rischio"],"c":3,"d":3},
+  {"q":"Cos'è un hedge fund?","a":["Un fondo che utilizza strategie sofisticate, spesso con leva finanziaria, riservato a investitori qualificati","Un fondo indicizzato a basso costo per piccoli risparmiatori","Un fondo pensione obbligatorio per i lavoratori dipendenti","Un conto corrente bancario con tasso agevolato"],"c":0,"d":3},
+  {"q":"Cos'è il rischio di liquidità di un investimento?","a":["Il rischio legato alle variazioni del tasso di cambio","Il rischio di non poter vendere o acquistare un'attività rapidamente senza impattarne il prezzo","Il rischio di un calo generale dei mercati azionari","Il rischio che l'emittente non paghi gli interessi dovuti"],"c":1,"d":3},
+  {"q":"Di cosa si occupa la finanza comportamentale (behavioral finance)?","a":["Della regolamentazione bancaria internazionale","Di come i bias psicologici influenzano le decisioni finanziarie","Della contabilità dei derivati finanziari","Del calcolo del costo del capitale delle imprese"],"c":1,"d":3},
+  {"q":"Cos'è l'avversione alla perdita (loss aversion)?","a":["La tendenza a soffrire per una perdita più di quanto ci si rallegri per un guadagno equivalente","L'incapacità di diversificare un portafoglio","La preferenza sistematica per gli investimenti più rischiosi","La tendenza a vendere sempre i titoli in guadagno"],"c":0,"d":4},
+  {"q":"Cos'è un CDS (Credit Default Swap)?","a":["Un derivato che offre protezione contro l'insolvenza di un emittente","Un contratto di leasing finanziario","Un titolo azionario privilegiato","Un fondo comune specializzato in obbligazioni corporate"],"c":0,"d":4},
+  {"q":"Cos'è la cartolarizzazione (securitization)?","a":["La quotazione in borsa di una società privata","Il pagamento anticipato di un debito bancario","Il processo di trasformazione di crediti o altre attività in titoli negoziabili","L'emissione di nuove azioni ordinarie"],"c":2,"d":4},
+  {"q":"Cosa misura lo Sharpe Ratio?","a":["Il rischio di cambio di un portafoglio internazionale","La correlazione tra due titoli","Il rendimento di un investimento aggiustato per il rischio, rispetto al tasso privo di rischio","Il rendimento assoluto di un portafoglio senza aggiustamenti"],"c":2,"d":4},
+  {"q":"Cosa significa che un titolo ha un beta pari a 1?","a":["Il titolo è completamente privo di rischio","Il titolo non paga dividendi","Il titolo tende a muoversi in linea con il mercato","Il titolo si muove sempre in direzione opposta al mercato"],"c":2,"d":2},
+  {"q":"Cosa indica il termine 'bull market'?","a":["Una fase di mercato in ribasso prolungato","Una fase di mercato in rialzo prolungato","Un mercato con volumi di scambio molto bassi","Un mercato regolato esclusivamente da banche centrali"],"c":1,"d":1},
+  {"q":"Cosa indica il termine 'bear market'?","a":["Una fase di mercato in rialzo prolungato","Un mercato riservato ai soli investitori istituzionali","Un mercato privo di volatilità","Una fase di mercato in ribasso prolungato"],"c":3,"d":1},
+  {"q":"Cos'è un fondo indicizzato (index fund)?","a":["Un fondo riservato esclusivamente a investitori istituzionali","Un fondo che investe solo in materie prime","Un fondo che replica passivamente la composizione di un indice di mercato","Un fondo gestito attivamente per battere il mercato"],"c":2,"d":2},
+  {"q":"Cos'è il rischio di controparte?","a":["Il rischio legato a variazioni normative future","Il rischio che l'altra parte di un contratto finanziario non adempia ai propri obblighi","Il rischio operativo interno a un'impresa","Il rischio di svalutazione di una valuta estera"],"c":1,"d":3},
+  {"q":"Quali sono i due prospetti principali del bilancio d'esercizio?","a":["Piano Industriale e Budget Annuale","Stato Patrimoniale e Conto Economico","Bilancio Consolidato e Bilancio Sociale","Nota Integrativa e Relazione sulla Gestione"],"c":1,"d":2},
+  {"q":"Cosa rappresenta lo Stato Patrimoniale?","a":["Il valore di mercato delle azioni dell'impresa","Le sole entrate e uscite di cassa dell'anno","I ricavi e i costi sostenuti durante l'esercizio","La situazione di attività, passività e patrimonio netto in un dato momento"],"c":3,"d":2},
+  {"q":"Cosa rappresenta il Conto Economico?","a":["Gli impegni fuori bilancio dell'impresa","La composizione del capitale sociale","I ricavi, i costi e il risultato economico di un periodo","Le sole disponibilità liquide a fine anno"],"c":2,"d":2},
+  {"q":"Cos'è l'ammortamento in contabilità?","a":["La ripartizione del costo di un bene pluriennale lungo la sua vita utile","La svalutazione immediata e totale di un'attività","L'accantonamento per rischi futuri","Il pagamento anticipato di un debito"],"c":0,"d":2},
+  {"q":"Cosa afferma il principio della competenza economica?","a":["Costi e ricavi si contabilizzano quando maturano, non quando avviene il pagamento","I ricavi si registrano sempre a fine esercizio","Solo i costi certi possono essere contabilizzati","Costi e ricavi si contabilizzano solo al momento dell'incasso o del pagamento"],"c":0,"d":3},
+  {"q":"Cosa misura il Rendiconto Finanziario (Cash Flow Statement)?","a":["Il solo utile netto dell'esercizio","Le entrate e le uscite di cassa in un periodo","Il valore di mercato del patrimonio netto","Le imposte differite iscritte in bilancio"],"c":1,"d":2},
+  {"q":"Cos'è il capitale circolante netto (working capital)?","a":["Il patrimonio netto meno il capitale sociale","La somma di tutti i debiti a lungo termine","Il totale delle immobilizzazioni materiali","La differenza tra attività correnti e passività correnti"],"c":3,"d":2},
+  {"q":"Cosa indica l'indice di liquidità corrente (current ratio)?","a":["Il rapporto tra debiti totali e patrimonio netto","Il tasso di rotazione del magazzino","La redditività del capitale investito","La capacità di un'impresa di coprire le passività a breve con le attività a breve"],"c":3,"d":2},
+  {"q":"Cosa sono i principi contabili IAS/IFRS?","a":["Gli standard di revisione interna aziendale","Le norme fiscali italiane sull'IVA","Standard contabili internazionali per la redazione dei bilanci","I regolamenti della Consob sulle società quotate"],"c":2,"d":3},
+  {"q":"Cos'è il 'goodwill' (avviamento) in un bilancio?","a":["La somma dei crediti verso clienti","Il valore contabile degli immobili di proprietà","Il capitale sociale versato dai soci","Il valore che eccede il fair value delle attività nette acquisite in un'acquisizione"],"c":3,"d":4},
+  {"q":"Cosa misura l'interesse composto rispetto a quello semplice?","a":["Un interesse pagato solo alla scadenza del prestito","Un interesse calcolato una sola volta sul capitale iniziale","Una crescita del capitale in cui gli interessi maturati generano a loro volta altri interessi","Un interesse che diminuisce nel tempo"],"c":2,"d":2},
+  {"q":"Cos'è il valore attuale (present value) di un flusso di cassa futuro?","a":["Il suo valore nominale futuro senza sconto","Il suo valore equivalente oggi, scontato a un dato tasso di interesse","Il valore di mercato di un titolo oggi","La somma di tutti i flussi di cassa futuri senza attualizzazione"],"c":1,"d":3},
+  {"q":"Cos'è una rendita perpetua (perpetuity) in finanza?","a":["Un prestito che non prevede mai il rimborso del capitale ma solo interessi per un periodo fisso","Una serie infinita di flussi di cassa costanti","Un dividendo pagato una tantum","Un titolo con scadenza a lunghissimo termine ma finita"],"c":1,"d":3},
+  {"q":"Cosa misura la deviazione standard in statistica?","a":["La relazione tra due variabili","La dispersione dei dati intorno alla loro media","Il valore più frequente in un insieme di dati","Il valore medio di una serie di dati"],"c":1,"d":2},
+  {"q":"Cosa misura il coefficiente di correlazione tra due variabili?","a":["La media aritmetica delle due variabili","Il valore massimo osservato tra le due variabili","La varianza congiunta assoluta","Il grado e la direzione della relazione lineare tra le due variabili"],"c":3,"d":3},
+  {"q":"Cos'è la regressione lineare in econometria?","a":["Un modello contabile per il bilancio consolidato","Un metodo statistico per stimare la relazione tra una variabile dipendente e una o più variabili indipendenti","Un metodo per calcolare solo la media di una serie storica","Una tecnica di campionamento casuale"],"c":1,"d":3},
+  {"q":"Cosa indica l'R² (R-quadro) in un modello di regressione?","a":["Il livello di significatività statistica del test","Il numero di variabili indipendenti utilizzate","La quota di variabilità della variabile dipendente spiegata dal modello","L'errore standard dei coefficienti stimati"],"c":2,"d":4},
+  {"q":"Cos'è l'eteroschedasticità in un modello econometrico?","a":["L'assenza di errori nel modello","La varianza non costante degli errori del modello di regressione","La perfetta correlazione tra due variabili indipendenti","Una relazione non lineare tra le variabili"],"c":1,"d":5},
+  {"q":"Cosa sono i titoli a tasso variabile?","a":["Titoli di Stato esenti da imposte","Obbligazioni che pagano sempre la stessa cedola fino a scadenza","Azioni il cui dividendo varia in base agli utili","Obbligazioni il cui interesse è periodicamente rivisto in base a un tasso di riferimento"],"c":3,"d":3},
+  {"q":"Cosa misura il TAEG di un finanziamento?","a":["Il solo tasso di interesse nominale del prestito","Il numero di rate previste dal piano di ammortamento","Il costo totale del credito espresso in percentuale annua, comprese le spese accessorie","L'importo totale rimborsato a scadenza"],"c":2,"d":3},
+  {"q":"Cos'è la revisione contabile (audit)?","a":["La valutazione del rischio di credito di un cliente","La redazione interna del bilancio d'esercizio","Il controllo indipendente sulla correttezza e attendibilità del bilancio","La pianificazione fiscale di un'impresa"],"c":2,"d":2},
+  {"q":"Cosa sono le passività potenziali (contingent liabilities)?","a":["Obbligazioni la cui esistenza dipende da eventi futuri incerti","Le imposte differite attive","Il totale dei debiti a lungo termine iscritti a bilancio","Debiti già scaduti e non pagati"],"c":0,"d":3},
+  {"q":"Cos'è l'IVA (Imposta sul Valore Aggiunto)?","a":["Un'imposta diretta sul reddito delle imprese","Un'imposta indiretta sui consumi applicata sul valore aggiunto in ogni fase della produzione o distribuzione","Un contributo previdenziale obbligatorio","Un'imposta patrimoniale sugli immobili"],"c":1,"d":2},
+  {"q":"Cosa indica il termine 'leva operativa'?","a":["Il rapporto tra debito e patrimonio netto","Il rendimento del capitale proprio","La velocità di rotazione del magazzino","La sensibilità del reddito operativo alle variazioni dei ricavi, in funzione dei costi fissi"],"c":3,"d":3},
+  {"q":"Cos'è il margine di contribuzione?","a":["Il totale dei costi fissi di produzione","Il rapporto tra utile netto e ricavi","La differenza tra ricavi e costi totali","La differenza tra ricavi e costi variabili"],"c":3,"d":3},
+  {"q":"Cosa indica il punto di pareggio (break-even point)?","a":["Il livello di vendite che massimizza il profitto","Il livello minimo di produzione tecnicamente possibile","Il livello di vendite al quale i ricavi coprono esattamente i costi totali","Il punto in cui il debito supera il patrimonio netto"],"c":2,"d":2},
+  {"q":"Cos'è la simulazione Monte Carlo applicata alla finanza?","a":["Un indicatore di redditività aziendale","Una tecnica che usa numeri casuali per stimare la distribuzione di possibili risultati di un modello","Un metodo contabile per il calcolo degli ammortamenti","Un algoritmo per la compensazione dei pagamenti bancari"],"c":1,"d":4},
+  {"q":"Cos'è il Value at Risk (VaR)?","a":["Il valore di mercato corrente di un portafoglio","Il valore contabile di un'attività finanziaria","Una misura della perdita massima attesa di un portafoglio con un dato livello di confidenza in un certo orizzonte temporale","Il rendimento medio storico di un portafoglio"],"c":2,"d":4},
+  {"q":"Cosa indica il 'backtesting' in finanza quantitativa?","a":["La verifica della conformità fiscale di un bilancio","Il calcolo del costo del capitale di un'impresa","La previsione dei tassi di cambio futuri","Il test di una strategia o modello utilizzando dati storici"],"c":3,"d":4},
+  {"q":"Cos'è un modello ARIMA nell'analisi delle serie storiche?","a":["Un indice di redditività settoriale","Un metodo di consolidamento dei bilanci di gruppo","Un modello che combina componenti autoregressive, di integrazione e di media mobile per prevedere serie temporali","Un modello di valutazione delle opzioni finanziarie"],"c":2,"d":5},
+  {"q":"Cosa descrive la legge della domanda?","a":["La domanda di un bene non dipende mai dal prezzo","Al crescere del prezzo di un bene, la quantità domandata tende a diminuire, a parità di altre condizioni","L'offerta di un bene determina sempre il suo prezzo","Al crescere del prezzo di un bene, la quantità domandata aumenta sempre"],"c":1,"d":1},
+  {"q":"Cos'è l'elasticità della domanda al prezzo?","a":["La sensibilità della quantità domandata a una variazione del prezzo","Il livello di concorrenza in un mercato","La variazione del reddito dei consumatori nel tempo","Il rapporto tra domanda e offerta in equilibrio"],"c":0,"d":3},
+  {"q":"Cosa caratterizza un mercato di monopolio?","a":["Molti venditori con prodotto omogeneo e nessun potere di mercato","Un unico venditore che ha potere di determinare il prezzo","Due sole imprese che competono sul prezzo","Un mercato regolato esclusivamente dallo Stato"],"c":1,"d":2},
+  {"q":"Cosa caratterizza un mercato oligopolistico?","a":["Un numero molto elevato di piccole imprese concorrenti","L'assenza totale di barriere all'entrata","Un numero ristretto di imprese che dominano il mercato","Un solo venditore e molti compratori"],"c":2,"d":2},
+  {"q":"Cosa caratterizza un mercato in concorrenza perfetta?","a":["Barriere all'entrata molto elevate","Un unico venditore che fissa il prezzo","Molti venditori e compratori, prodotto omogeneo e libertà di entrata e uscita","Prodotti fortemente differenziati tra loro"],"c":2,"d":2},
+  {"q":"Cos'è un'esternalità negativa in economia?","a":["Una tassa imposta dallo Stato su un bene di lusso","Un sussidio pubblico a un settore produttivo","Un costo imposto a soggetti terzi non coinvolti in una transazione economica","Un beneficio ricevuto gratuitamente da terzi"],"c":2,"d":3},
+  {"q":"Cosa definisce un bene pubblico in economia?","a":["Un bene sempre gratuito per il consumatore","Un bene non escludibile e non rivale nel consumo","Un bene prodotto esclusivamente dallo Stato","Un bene che può essere consumato da una sola persona alla volta"],"c":1,"d":3},
+  {"q":"Chi ha scritto 'La ricchezza delle nazioni' (1776)?","a":["Thomas Malthus","John Stuart Mill","Adam Smith","David Ricardo"],"c":2,"d":2},
+  {"q":"Chi è considerato il padre della macroeconomia keynesiana?","a":["John Maynard Keynes","Friedrich Hayek","Milton Friedman","Alfred Marshall"],"c":0,"d":1},
+  {"q":"Cosa afferma la metafora della 'mano invisibile' di Adam Smith?","a":["Il commercio internazionale danneggia sempre l'economia nazionale","I mercati falliscono sistematicamente senza regolamentazione","Lo Stato deve sempre intervenire per correggere il mercato","Il perseguimento dell'interesse individuale può condurre a un beneficio collettivo in un mercato concorrenziale"],"c":3,"d":2},
+  {"q":"Chi ha teorizzato il concetto di 'distruzione creatrice'?","a":["Joseph Schumpeter","John Maynard Keynes","Karl Marx","David Ricardo"],"c":0,"d":3},
+  {"q":"Cosa afferma la teoria dei vantaggi comparati di Ricardo?","a":["Il commercio internazionale è sempre dannoso per i paesi più piccoli","Un paese dovrebbe produrre tutti i beni internamente per essere autosufficiente","Solo i paesi con vantaggio assoluto possono beneficiare del commercio","Un paese trae beneficio dal commercio specializzandosi nei beni in cui ha un costo-opportunità relativamente minore"],"c":3,"d":3},
+  {"q":"Cos'è il protezionismo commerciale?","a":["L'insieme di politiche, come dazi e quote, che limitano il commercio internazionale per proteggere l'industria nazionale","Una politica monetaria espansiva rivolta all'export","Un accordo per eliminare tutte le barriere doganali","La totale apertura di un paese al libero scambio"],"c":0,"d":2},
+  {"q":"Cos'è un dazio doganale (tariffa)?","a":["Un sussidio alle imprese esportatrici","Un'imposta sulle esportazioni verso l'estero","Un limite quantitativo alle importazioni","Un'imposta sulle importazioni di beni dall'estero"],"c":3,"d":1},
+  {"q":"Cosa misura la bilancia commerciale di un paese?","a":["La differenza tra esportazioni e importazioni di beni","Il totale del debito pubblico estero","Il livello degli investimenti diretti esteri","Il tasso di cambio della sua valuta"],"c":0,"d":2},
+  {"q":"Cosa si intende per globalizzazione economica?","a":["La chiusura delle frontiere commerciali tra Stati","L'integrazione crescente delle economie nazionali attraverso commercio, capitali e informazioni","L'adozione di una moneta unica mondiale","La nazionalizzazione delle principali imprese multinazionali"],"c":1,"d":2},
+  {"q":"Chi ha contribuito, insieme a John von Neumann, alla nascita della teoria dei giochi?","a":["John Nash","Oskar Morgenstern","Thomas Schelling","Robert Aumann"],"c":1,"d":4},
+  {"q":"Cos'è l'equilibrio di Nash in teoria dei giochi?","a":["Una strategia sempre vincente indipendentemente dalle mosse altrui","Una situazione in cui tutti i giocatori ottengono lo stesso profitto","Una situazione in cui nessun giocatore ha convenienza a cambiare strategia unilateralmente","Il punto in cui la domanda eguaglia l'offerta di mercato"],"c":2,"d":3},
+  {"q":"Cosa mostra il celebre 'dilemma del prigioniero'?","a":["Che la cooperazione è sempre la scelta razionale ottimale","Che il monopolio massimizza il benessere sociale","Che i mercati concorrenziali sono sempre efficienti","Come due individui razionali possano non cooperare anche se sarebbe nel loro interesse comune"],"c":3,"d":3},
+  {"q":"Cosa si intende per 'fallimento di mercato'?","a":["La chiusura di una borsa valori","Una situazione in cui il libero mercato non alloca le risorse in modo efficiente","Il fallimento (bancarotta) di una singola impresa","Una crisi valutaria improvvisa"],"c":1,"d":3},
+  {"q":"Cosa sono i cosiddetti 'beni Giffen'?","a":["Beni per cui la domanda aumenta al crescere del prezzo, contraddicendo la legge della domanda","Beni di lusso con domanda molto elastica","Beni la cui offerta è perfettamente rigida","Beni pubblici forniti gratuitamente dallo Stato"],"c":0,"d":4},
+  {"q":"Chi ha scritto 'Il Capitale'?","a":["Antonio Gramsci","Friedrich Engels","Vladimir Lenin","Karl Marx"],"c":3,"d":2},
+  {"q":"Cosa caratterizza principalmente la scuola economica austriaca?","a":["L'enfasi sull'individualismo metodologico e la critica all'intervento statale nell'economia","Il sostegno alla pianificazione centralizzata dell'economia","L'adesione al sistema del gold standard obbligatorio","La priorità assoluta alla politica fiscale espansiva"],"c":0,"d":4},
+  {"q":"Cosa sostiene il monetarismo, associato a Milton Friedman?","a":["La quantità di moneta in circolazione è il principale determinante dell'inflazione nel lungo periodo","Il commercio internazionale non ha effetti sull'inflazione","La spesa pubblica è lo strumento migliore per controllare l'inflazione","I tassi di cambio fissi sono sempre preferibili a quelli flessibili"],"c":0,"d":3},
+  {"q":"Cosa afferma la teoria del ciclo economico reale (Real Business Cycle)?","a":["I cicli economici sono interamente prevedibili e regolari","La disoccupazione è sempre di natura volontaria","Le fluttuazioni economiche derivano principalmente da shock reali, come quelli tecnologici, piuttosto che monetari","Le crisi economiche sono causate esclusivamente da errori di politica monetaria"],"c":2,"d":5},
+  {"q":"Cos'è l'Unione Europea dal punto di vista economico?","a":["Una semplice area di libero scambio senza regole comuni","Un'unione doganale e un mercato unico tra gli Stati membri","Una federazione con un'unica politica fiscale centralizzata obbligatoria","Un'organizzazione con la sola funzione di difesa comune"],"c":1,"d":2},
+  {"q":"Cos'è l'Eurozona?","a":["Il gruppo di paesi che utilizzano il dollaro come valuta di riferimento","L'insieme dei paesi dell'UE che hanno adottato l'euro come moneta unica","Tutti i 27 Stati membri dell'Unione Europea","L'area di libero scambio tra UE e Regno Unito"],"c":1,"d":1},
+  {"q":"Cos'è il PIL pro capite?","a":["Il PIL calcolato al netto delle sole esportazioni","Il PIL di un paese diviso per il numero dei suoi abitanti","Il PIL totale sommato a quello dei paesi vicini","La crescita percentuale annua del PIL"],"c":1,"d":1},
+  {"q":"Cosa misura l'indice di Gini?","a":["Il grado di disuguaglianza nella distribuzione del reddito o della ricchezza","Il livello di inflazione di un paese","Il tasso di disoccupazione giovanile","La crescita del debito pubblico nel tempo"],"c":0,"d":3},
+  {"q":"Chi ha vinto il Premio Nobel per l'Economia 2022 per gli studi su banche e crisi finanziarie?","a":["Ben Bernanke, Douglas Diamond e Philip Dybvig","Esther Duflo e Abhijit Banerjee","Paul Krugman e Joseph Stiglitz","Robert Shiller e Eugene Fama"],"c":0,"d":4}
+];
+
 let game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
 
 function euro(n){return "€"+n.toLocaleString("it-IT")}
@@ -526,6 +709,86 @@ document.getElementById("menuClose").onclick=()=>closeMenu();
 document.getElementById("guideBtn").onclick=()=>{closeMenu();showGuide()};
 document.getElementById("infoBtn").onclick=()=>{closeMenu();showInfo()};
 document.getElementById("scoresBtn").onclick=()=>{closeMenu();openModal("Punteggi salvati",scoresHtml())};
+
+// --- Modalità Economia & Finanza (universitario) ---
+let econGame={list:[],idx:0,score:0,total:0,locked:false,helps:{fifty:true,audience:true,expert:true}};
+function shuffleArr(arr){return [...arr].sort(()=>Math.random()-.5)}
+function econCurrent(){return econGame.list[econGame.idx]}
+function openEconSetup(){
+  closeMenu();
+  openModal("Quiz Economia & Finanza","<p>150 domande di livello universitario (5° anno Economia e Finanza): macroeconomia, finanza aziendale, mercati finanziari, contabilità e microeconomia.</p><p>Quante domande vuoi affrontare?</p><div style='display:grid;gap:8px;margin-top:10px'><button class='primary' onclick=\"startEcon(10)\">10 domande</button><button class='primary' onclick=\"startEcon(20)\">20 domande</button><button class='primary' onclick=\"startEcon(50)\">50 domande</button></div>");
+}
+function startEcon(n){
+  playSound('click');
+  document.getElementById("modal").classList.remove("show");
+  const pool=shuffleArr(econQuestions).slice(0,Math.min(n,econQuestions.length));
+  econGame={list:pool,idx:0,score:0,total:pool.length,locked:false,helps:{fifty:true,audience:true,expert:true}};
+  ["econFifty","econAudience","econExpert"].forEach(x=>document.getElementById(x).disabled=false);
+  show("econ");
+  loadEconQuestion();
+}
+function loadEconQuestion(){
+  econGame.locked=false;
+  stopSpeech();
+  const q=econCurrent();
+  document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
+  document.getElementById("econProgress").style.width=(econGame.idx/econGame.total*100)+"%";
+  document.getElementById("econQuestion").textContent=q.q;
+  document.getElementById("econStatus").textContent="Domanda "+(econGame.idx+1)+" di "+econGame.total;
+  const letters=["A","B","C","D"], box=document.getElementById("econAnswers");box.innerHTML="";
+  q.a.forEach((x,i)=>{let b=document.createElement("button");b.className="answer";b.innerHTML=`<b>${letters[i]}</b>${x}`;b.onclick=()=>answerEcon(i,b);box.appendChild(b)});
+}
+function useEconFifty(){
+  if(!econGame.helps.fifty||econGame.locked)return;playSound('click');econGame.helps.fifty=false;document.getElementById("econFifty").disabled=true;
+  const q=econCurrent();
+  let wrong=[0,1,2,3].filter(i=>i!==q.c);shuffleArr(wrong).slice(0,2).forEach(i=>document.querySelectorAll("#econAnswers .answer")[i].classList.add("dim"));
+}
+function useEconAudience(){
+  if(!econGame.helps.audience||econGame.locked)return;playSound('click');econGame.helps.audience=false;document.getElementById("econAudience").disabled=true;
+  const q=econCurrent();
+  let c=q.c, vals=[0,0,0,0];vals[c]=65+Math.floor(Math.random()*21);let rem=100-vals[c];let others=[0,1,2,3].filter(i=>i!==c);let x=Math.floor(Math.random()*(rem+1)),y=Math.floor(Math.random()*(rem-x+1));vals[others[0]]=x;vals[others[1]]=y;vals[others[2]]=rem-x-y;
+  openModal("Voto del pubblico",vals.map((v,i)=>`<div style="text-align:left"><b>${"ABCD"[i]}</b> ${v}%</div><div class="bar"><i style="width:${v}%"></i></div>`).join(""));
+}
+function useEconExpert(){
+  if(!econGame.helps.expert||econGame.locked)return;playSound('click');econGame.helps.expert=false;document.getElementById("econExpert").disabled=true;
+  const q=econCurrent();
+  openModal("L'esperto pensa…",`La risposta più probabile è <strong>${"ABCD"[q.c]}</strong> — <em>${q.a[q.c]}</em>.`);
+}
+function answerEcon(i,btn){
+  if(econGame.locked)return;
+  econGame.locked=true;
+  playSound('select');
+  const q=econCurrent();
+  setTimeout(()=>{
+    const all=[...document.querySelectorAll("#econAnswers .answer")];
+    all[q.c].classList.add("correct");
+    if(i===q.c){ econGame.score++; playSound('correct'); }
+    else { btn.classList.add("wrong"); playSound('wrong'); }
+    document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
+    setTimeout(()=>{
+      econGame.idx++;
+      if(econGame.idx>=econGame.total) finishEcon();
+      else loadEconQuestion();
+    },1100);
+  },400);
+}
+function finishEcon(){
+  stopSpeech();
+  document.getElementById("econProgress").style.width="100%";
+  const pct=Math.round(econGame.score/econGame.total*100);
+  document.getElementById("econResultAmount").textContent=econGame.score+"/"+econGame.total;
+  document.getElementById("econResultTitle").textContent=pct>=80?"Ottimo lavoro! 🎓":pct>=50?"Buon risultato":"Continua a studiare";
+  document.getElementById("econResultText").textContent="Hai risposto correttamente al "+pct+"% delle domande.";
+  show("econResult");
+}
+document.getElementById("econSetupBtn").onclick=openEconSetup;
+document.getElementById("econMenuBtn").onclick=()=>{playSound('click');stopSpeech();show("start")};
+document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEcon(econGame.total)};
+document.getElementById("econHomeBtn").onclick=()=>{playSound('click');show("start")};
+document.getElementById("econReadQuestion").onclick=()=>{playSound('click');speakQuestion('econQuestion');};
+document.getElementById("econFifty").onclick=useEconFifty;
+document.getElementById("econAudience").onclick=useEconAudience;
+document.getElementById("econExpert").onclick=useEconExpert;
 document.getElementById("scoresHomeBtn").onclick=()=>{playSound('click');openModal("Punteggi salvati",scoresHtml())};
 document.getElementById("readQuestion").onclick=()=>{playSound('click');speakQuestion();};
 document.getElementById("playerName").addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('startBtn').click(); } });
