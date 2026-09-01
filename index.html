@@ -178,6 +178,7 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
 <script>
 let playerName="";
 let soundEnabled=true;
+let econSetupOpen=false; // Flag per capire se stiamo aprendo il modale per Economia
 
 // Synth Web Audio API per effetti sonori — contesto creato al primo gesto utente (fix iOS)
 let audioCtx=null;
@@ -237,7 +238,7 @@ function speakQuestion(elId){
 
 const prizes=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 
-// === DOMANDE CULTURA GENERALE (243 totali: originali + inedite + create) ===
+// === DOMANDE CULTURA GENERALE (243 totali) ===
 const questions=[
   // Originali (193)
   {"q":"Qual è la capitale dell'Australia?","a":["Sydney","Melbourne","Canberra","Brisbane"],"c":2,"d":1},
@@ -647,7 +648,7 @@ const questions=[
 
 // === SEZIONE ECONOMIA & FINANZA - 200 DOMANDE TOTALI ===
 const econQuestions=[
-  // 150 originali (le stesse del tuo file, le ho mantenute identiche)
+  // 150 originali
   {"q":"Cosa misura il PIL (Prodotto Interno Lordo)?","a":["Il valore delle sole esportazioni nette","Il totale delle tasse raccolte dallo Stato","La quantità di moneta in circolazione","Il valore di tutti i beni e servizi finali prodotti in un paese in un periodo"],"c":3,"d":2},
   {"q":"Chi decide i tassi di interesse ufficiali nell'Eurozona?","a":["La Banca Mondiale","Il Parlamento Europeo","La Banca Centrale Europea (BCE)","La Commissione Europea"],"c":2,"d":2},
   {"q":"Come si definisce l'inflazione?","a":["Una diminuzione della disoccupazione","Una riduzione del debito pubblico","Un aumento del PIL reale","Un aumento generalizzato e persistente dei prezzi"],"c":3,"d":1},
@@ -798,7 +799,7 @@ const econQuestions=[
   {"q":"Cos'è il PIL pro capite?","a":["Il PIL calcolato al netto delle sole esportazioni","Il PIL di un paese diviso per il numero dei suoi abitanti","Il PIL totale sommato a quello dei paesi vicini","La crescita percentuale annua del PIL"],"c":1,"d":1},
   {"q":"Cosa misura l'indice di Gini?","a":["Il grado di disuguaglianza nella distribuzione del reddito o della ricchezza","Il livello di inflazione di un paese","Il tasso di disoccupazione giovanile","La crescita del debito pubblico nel tempo"],"c":0,"d":3},
   {"q":"Chi ha vinto il Premio Nobel per l'Economia 2022 per gli studi su banche e crisi finanziarie?","a":["Ben Bernanke, Douglas Diamond e Philip Dybvig","Esther Duflo e Abhijit Banerjee","Paul Krugman e Joseph Stiglitz","Robert Shiller e Eugene Fama"],"c":0,"d":4},
-  // 50 NUOVE di Economia (create da me)
+  // 50 NUOVE di Economia
   {"q":"Cosa misura il coefficiente beta di un titolo azionario nel CAPM?","a":["La volatilità storica del titolo","Il rischio sistematico rispetto al mercato","Il rapporto tra debito e capitale proprio","Il tasso di crescita dei dividendi"],"c":1,"d":3},
   {"q":"Qual è la formula corretta per calcolare il costo medio ponderato del capitale (WACC)?","a":["E/V * Re + D/V * Rd * (1-Tc)","E/V * Rd + D/V * Re","Re + Rd * (1-Tc)","E * Re + D * Rd"],"c":0,"d":4},
   {"q":"Cosa rappresenta l'indice di Sharpe?","a":["Il rendimento assoluto di un investimento","Il rapporto tra rendimento in eccesso e volatilità del portafoglio","La varianza dei rendimenti di un titolo","La correlazione tra due attività finanziarie"],"c":1,"d":3},
@@ -851,9 +852,11 @@ const econQuestions=[
 ];
 
 let game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
+let econGame={list:[],idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
 
 function euro(n){return "€"+n.toLocaleString("it-IT")}
 function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function shuffleArr(arr){return [...arr].sort(()=>Math.random()-.5)}
 function saveScore(name,amount,level){
  const scores=JSON.parse(localStorage.getItem("milionarioScores")||"[]");
  scores.push({name:name||"Giocatore",amount,level,date:new Date().toLocaleDateString("it-IT")});
@@ -875,7 +878,7 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function openMenu(){playSound('click');document.getElementById("menuModal").classList.add("show")}
 function closeMenu(){playSound('click');document.getElementById("menuModal").classList.remove("show")}
 function showGuide(){openModal("Guida del gioco",`<p><b>Obiettivo:</b> rispondi correttamente a 15 domande e prova ad arrivare a €1.000.000.</p><p><b>Aiuti:</b> 50:50 elimina due risposte; Pubblico mostra una stima dei voti; Esperto suggerisce una risposta.</p><p>Puoi fermarti in qualsiasi momento e conservare il premio raggiunto. I punteggi vengono salvati sul dispositivo.</p>`)}
-function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">3.2</span></p><p>App creata da Miki by Claude</p>`)}
+function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">3.3</span></p><p>App creata da Miki by Claude</p>`)}
 function saveRecord(v){localStorage.setItem("milionarioRecord",Math.max(v,+localStorage.getItem("milionarioRecord")||0))}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function renderPrizes(){let el=document.getElementById("prizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;let safe=level===4||level===9;return `<div class="prize ${level===game.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`}).join("")}
@@ -979,18 +982,17 @@ document.getElementById("infoBtn").onclick=()=>{closeMenu();showInfo()};
 document.getElementById("scoresBtn").onclick=()=>{closeMenu();openModal("Punteggi salvati",scoresHtml())};
 
 // --- SEZIONE ECONOMIA & FINANZA STILE MILIONARIO (15 domande) ---
-let econGame={list:[],idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
-
-function shuffleArr(arr){return [...arr].sort(()=>Math.random()-.5)}
 function econCurrent(){return econGame.list[econGame.idx]}
 
 function openEconSetup(){
   closeMenu();
+  econSetupOpen = true; // Flag per sapere che stiamo aprendo il modale di Economia
   openModal("Quiz Economia & Finanza","<p>Quiz universitario stile Milionario: 15 domande di Economia e Finanza (5° anno università).</p><p>Rispondi correttamente per vincere il montepremi massimo di €1.000.000!</p>");
 }
 function startEconGame(){
   playSound('click');
   document.getElementById("modal").classList.remove("show");
+  econSetupOpen = false; // Reset flag
   const pool=shuffleArr(econQuestions).slice(0,15);
   econGame={list:pool,idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
   ["econFifty","econAudience","econExpert"].forEach(x=>document.getElementById(x).disabled=false);
@@ -1061,11 +1063,13 @@ function finishEcon(win){
   if(win) celebrate();
 }
 document.getElementById("econSetupBtn").onclick=openEconSetup;
-// IMPORTANTE: il pulsante "OK" del modale avvia il gioco
+// Gestione corretta del pulsante OK del modale: avvia solo se è il modale di Economia
 document.getElementById("modalClose").onclick=()=>{
   playSound('click');
   document.getElementById("modal").classList.remove("show");
-  startEconGame();
+  if(econSetupOpen){
+    startEconGame();
+  }
 };
 document.getElementById("econMenuBtn").onclick=()=>{playSound('click');stopSpeech();show("start")};
 document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEconGame()};
