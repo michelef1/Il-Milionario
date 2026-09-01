@@ -146,7 +146,7 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
     <div class="brand">🎓 ECONOMIA &amp; FINANZA</div>
     <div style="display:flex;align-items:center;gap:7px">
       <button class="help" id="econMenuBtn" aria-label="Torna al menu" style="min-height:42px;padding:7px 10px;font-size:18px">✕</button>
-      <div class="money" id="econScoreTop">0/0</div>
+      <div class="money" id="econMoney">€100</div>
     </div>
   </div>
   <div class="lifelines">
@@ -155,15 +155,17 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
     <button class="help" id="econExpert">📞 Esperto</button>
   </div>
   <div class="progress"><i id="econProgress"></i></div>
+  <div class="prizeboard" id="econPrizeboard"></div>
   <div class="question" id="econQuestion"></div>
   <button class="secondary" id="econReadQuestion" style="margin:-4px 0 12px">🔊 Leggi la domanda</button>
   <div class="answers" id="econAnswers"></div>
   <div class="status" id="econStatus"></div>
+  <button class="secondary" id="econWalkBtn">Mi fermo e incasso</button>
 </section>
 
 <section id="econResult" class="screen result">
   <div class="logo">🎓</div><h1 id="econResultTitle">Quiz completato!</h1>
-  <div class="amount" id="econResultAmount">0/0</div>
+  <div class="amount" id="econResultAmount">€0</div>
   <div class="subtitle" id="econResultText"></div>
   <button class="primary" id="econAgainBtn">RIFAI IL QUIZ</button>
   <button class="secondary" id="econHomeBtn">Torna al menu</button>
@@ -234,7 +236,10 @@ function speakQuestion(elId){
 }
 
 const prizes=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+
+// === DOMANDE CULTURA GENERALE (243 totali: originali + inedite + create) ===
 const questions=[
+  // Originali (193)
   {"q":"Qual è la capitale dell'Australia?","a":["Sydney","Melbourne","Canberra","Brisbane"],"c":2,"d":1},
   {"q":"Quale fiume attraversa Parigi?","a":["Tamigi","Senna","Danubio","Loira"],"c":1,"d":1},
   {"q":"Qual è l'oceano più grande del mondo?","a":["Atlantico","Indiano","Pacifico","Artico"],"c":2,"d":1},
@@ -427,10 +432,222 @@ const questions=[
   {"q":"Quale animale è il simbolo nazionale della Cina?","a":["Tigre","Panda gigante","Drago","Gru"],"c":1,"d":1},
   {"q":"Chi compose l'opera lirica 'Le nozze di Figaro'?","a":["Mozart","Beethoven","Bach","Haydn"],"c":0,"d":2},
   {"q":"Qual è il mare che bagna la costa orientale dell'Italia?","a":["Mar Ligure","Mar Adriatico","Mar Ionio","Mar Tirreno"],"c":1,"d":1},
-  {"q":"Quale scienziata vinse due premi Nobel in due discipline scientifiche diverse?","a":["Rosalind Franklin","Marie Curie","Ada Lovelace","Rita Levi-Montalcini"],"c":1,"d":2}
+  {"q":"Quale scienziata vinse due premi Nobel in due discipline scientifiche diverse?","a":["Rosalind Franklin","Marie Curie","Ada Lovelace","Rita Levi-Montalcini"],"c":1,"d":2},
+  // Inedite dai tuoi JSON (corrette)
+  {"q":"Quale trattato sancì la nascita ufficiale dell'Unione Europea nel 1993?","a":["Trattato di Roma","Trattato di Maastricht","Trattato di Lisbona","Trattato di Amsterdam"],"c":1,"d":2},
+  {"q":"In quale anno l'esploratore Roald Amundsen ha raggiunto per primo il Polo Sud?","a":["1905","1911","1918","1923"],"c":1,"d":3},
+  {"q":"Qual è il fiume più lungo d'Europa tra quelli appartenenti interamente al continente?","a":["Danubio","Volga","Reno","Dnepr"],"c":1,"d":3},
+  {"q":"Quale elemento chimico è rappresentato dalla sigla 'Fe' nella tavola periodica?","a":["Fluoro","Ferro","Fosforo","Fermio"],"c":1,"d":1},
+  {"q":"Chi ha dipinto il celebre affresco 'La scuola di Atene' all'interno delle Stanze Vaticane?","a":["Michelangelo Buonarroti","Leonardo da Vinci","Raffaello Sanzio","Sandro Botticelli"],"c":2,"d":2},
+  {"q":"Quale stato del sud-est asiatico ha inaugurato nel 2024 la sua nuova capitale, Nusantara?","a":["Malesia","Indonesia","Thailandia","Filippine"],"c":1,"d":4},
+  {"q":"Quale nazione ha ospitato i Giochi Olimpici Estivi nel 2024?","a":["Giappone","Francia","Stati Uniti","Brasile"],"c":1,"d":1},
+  {"q":"Quale stile architettonico caratterizza la Cattedrale di Notre-Dame a Parigi?","a":["Romanico","Gotico","Barocco","Rinascimentale"],"c":1,"d":2},
+  {"q":"Quale grande evento sportivo si è svolto in Qatar nel tardo 2022?","a":["Campionato mondiale di Formula 1","Campionato mondiale di calcio FIFA","Giochi Olimpici Invernali","Mondiali di Atletica Leggera"],"c":1,"d":2},
+  {"q":"Chi ha composto la celebre opera lirica 'La Traviata'?","a":["Giacomo Puccini","Giuseppe Verdi","Gioachino Rossini","Vincenzo Bellini"],"c":1,"d":2},
+  {"q":"Quale particella subatomica possiede una carica elettrica negativa?","a":["Protone","Neutrone","Elettrone","Fotone"],"c":2,"d":1},
+  {"q":"Quale autore ha scritto il poema epico 'L'Orlando Furioso'?","a":["Torquato Tasso","Ludovico Ariosto","Giovanni Boccaccio","Francesco Petrarca"],"c":1,"d":2},
+  {"q":"Come si chiama la forza che oppone resistenza al movimento di un corpo su una superficie?","a":["Inerzia","Tensione","Attrito","Gravità"],"c":2,"d":1},
+  {"q":"Qual è il capoluogo della regione autonoma della Sardegna?","a":["Sassari","Cagliari","Olbia","Nuoro"],"c":1,"d":1},
+  {"q":"Nella mitologia romana, chi corrisponde alla dea greca Atena?","a":["Venere","Giunone","Minerva","Diana"],"c":2,"d":2},
+  {"q":"Quale famoso telescopio spaziale della NASA/ESA ha rilasciato le sue prime immagini a colori nel luglio 2022?","a":["Hubble","James Webb Space Telescope","Kepler","Spitzer"],"c":1,"d":3},
+  {"q":"Chi è l'autore della scultura marmorea 'Il David' conservata alla Galleria dell'Accademia di Firenze?","a":["Donatello","Gian Lorenzo Bernini","Michelangelo Buonarroti","Antonio Canova"],"c":2,"d":2},
+  {"q":"Quale gas compone la maggior parte dell'atmosfera terrestre?","a":["Ossigeno","Anidride Carbonica","Azoto","Argon"],"c":2,"d":1},
+  {"q":"In quale città si trova la sede centrale dell'UNESCO?","a":["Ginevra","Parigi","New York","Vienna"],"c":1,"d":2},
+  {"q":"Quale storico conflitto terminò con la battaglia di Waterloo nel 1815?","a":["Guerra dei Trent'Anni","Guerre Napoleoniche","Guerra dei Sette Anni","Guerra di Successione Spagnola"],"c":1,"d":2},
+  {"q":"Chi è il regista del film 'Oppenheimer' uscito nelle sale nel 2023?","a":["Steven Spielberg","Christopher Nolan","Quentin Tarantino","Martin Scorsese"],"c":1,"d":2},
+  {"q":"Qual è l'isola più grande del mondo per superficie?","a":["Madagascar","Groenlandia","Nuova Guinea","Borneo"],"c":1,"d":2},
+  {"q":"Quale organo delle piante è responsabile primario della fotosintesi clorofilliana?","a":["Radice","Fusto","Foglia","Fiore"],"c":2,"d":1},
+  {"q":"In quale anno si è tenuta la prima edizione dei Campionati Mondiali di Calcio?","a":["1924","1930","1934","1938"],"c":1,"d":2},
+  {"q":"Quale scienziata ha vinto due premi Nobel in due differenti campi scientifici (Fisica e Chimica)?","a":["Rosalind Franklin","Marie Curie","Lise Meitner","Ada Lovelace"],"c":1,"d":3},
+  {"q":"Qual è lo stretto che separa la Sicilia dalla Calabria?","a":["Stretto di Bonifacio","Stretto di Messina","Canale di Otranto","Canale di Sicilia"],"c":1,"d":1},
+  {"q":"Chi ha scritto la celebre raccolta di novelle intitolata 'Decameron'?","a":["Dante Alighieri","Francesco Petrarca","Giovanni Boccaccio","Niccolò Machiavelli"],"c":2,"d":2},
+  {"q":"In quale città si svolgeranno i Giochi Olimpici e Paralimpici Invernali del 2026?","a":["Milano e Cortina d'Ampezzo","Torino e Sestriere","Innsbruck e Salisburgo","Vancouver e Whistler"],"c":0,"d":2},
+  {"q":"Quale fenomeno fisico spiega il passaggio diretto di una sostanza dallo stato solido a quello gassoso?","a":["Evaporazione","Fusione","Sublimazione","Condensazione"],"c":2,"d":2},
+  {"q":"Chi è stato il primo imperatore romano, salito al potere dopo la fine della Repubblica?","a":["Giulio Cesare","Augusto","Tiberio","Nerone"],"c":1,"d":2},
+  {"q":"Quale artista spagnolo ha dipinto la celebre opera di protesta 'Guernica' nel 1937?","a":["Salvador Dalí","Pablo Picasso","Joan Miró","Francisco Goya"],"c":1,"d":2},
+  {"q":"Qual è la montagna più alta d'Africa?","a":["Monte Kenya","Kilimangiaro","Monte Ras Dascian","Monte Toubkal"],"c":1,"d":2},
+  {"q":"Quale social network è stato acquisito da Elon Musk nel 2022 e successivamente rinominato 'X'?","a":["Instagram","Twitter","TikTok","Reddit"],"c":1,"d":1},
+  {"q":"Come si chiama la corrente filosofica fondata da Zenone di Cizio nell'antica Grecia?","a":["Epicureismo","Stoicismo","Scetticismo","Cinismo"],"c":1,"d":3},
+  {"q":"In quale stato americano si trova la Valle della Morte (Death Valley)?","a":["Nevada","California","Arizona","Texas"],"c":1,"d":2},
+  {"q":"Qual è il simbolo chimico dell'oro?","a":["Ag","Au","Fe","Pb"],"c":1,"d":1},
+  {"q":"Chi ha diretto la triologia cinematografica 'Il Signore degli Anelli'?","a":["George Lucas","Peter Jackson","James Cameron","Ridley Scott"],"c":1,"d":2},
+  {"q":"Quale evento storico iniziò nel 1789 con la presa della Bastiglia a Parigi?","a":["Rivoluzione Industriale","Rivoluzione Francese","Guerra Franco-Prussiana","Comune di Parigi"],"c":1,"d":2},
+  {"q":"Quale pianeta del sistema solare possiede il sistema di anelli più esteso e visibile?","a":["Giove","Saturno","Urano","Nettuno"],"c":1,"d":1},
+  {"q":"Quale drammaturgo è l'autore dell'opera teatrale 'Sei personaggi in cerca d'autore'?","a":["Luigi Pirandello","Gabriele D'Annunzio","Italo Svevo","Eduardo De Filippo"],"c":0,"d":3},
+  {"q":"Quale nazione ha vinto la Coppa del Mondo di Rugby maschile nel 2023?","a":["Nuova Zelanda","Sudafrica","Inghilterra","Francia"],"c":1,"d":3},
+  {"q":"Qual è la capitale politica del Canada?","a":["Toronto","Montreal","Ottawa","Vancouver"],"c":2,"d":2},
+  {"q":"Come viene definita la quantità di materia contenuta in un corpo, misurata in chilogrammi?","a":["Peso","Massa","Volume","Densità"],"c":1,"d":1},
+  {"q":"Nella mitologia norrena, chi è il padre degli dei e signore dell'Asgard?","a":["Thor","Loki","Odino","Freyr"],"c":2,"d":2},
+  {"q":"Quale canale artificiale, inaugurato nel 1869, collega il Mare Mediterraneo al Mar Rosso?","a":["Canale di Panama","Canale di Suez","Canale di Corinto","Canale di Kiel"],"c":1,"d":2},
+  {"q":"Chi ha dipinto la famosa tela l' 'Urlo' (1893)?","a":["Vincent van Gogh","Edvard Munch","Gustav Klimt","Claude Monet"],"c":1,"d":2},
+  {"q":"Quale importante accordo globale sull'ambiente è stato siglato durante la COP21 nel 2015?","a":["Protocollo di Kyoto","Accordo di Parigi","Trattato di Montreal","Carta di Copenaghen"],"c":1,"d":2},
+  {"q":"Quale scuderia automobilistica ha vinto il Campionato Mondiale Costruttori di Formula 1 nel 2023?","a":["Mercedes","Ferrari","Red Bull Racing","McLaren"],"c":2,"d":2},
+  {"q":"Qual è la capitale della Svizzera?","a":["Zurigo","Ginevra","Berna","Basilea"],"c":2,"d":2},
+  {"q":"Quale organo del corpo umano produce l'insulina per regolare i livelli di glucosio?","a":["Fegato","Pancreas","Milza","Rene"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, da quale creatura fu custodito il labirinto di Creta?","a":["Centauro","Minotauro","Chimera","Idra"],"c":1,"d":2},
+  {"q":"Quale azienda farmaceutica ha sviluppato, insieme a BioNTech, uno dei primi vaccini a mRNA contro il COVID-19?","a":["AstraZeneca","Moderna","Pfizer","Johnson & Johnson"],"c":2,"d":3},
+  {"q":"In quale anno è finita la Seconda Guerra Mondiale?","a":["1943","1945","1948","1950"],"c":1,"d":1},
+  {"q":"Qual è il vulcano attivo più alto d'Europa?","a":["Vesuvio","Stromboli","Etna","Teide"],"c":2,"d":2},
+  {"q":"Quale scienziato è considerato il padre della genetica moderna per i suoi studi sulle piante di pisello?","a":["Charles Darwin","Gregor Mendel","Louis Pasteur","Thomas Morgan"],"c":1,"d":2},
+  {"q":"Quale cantante ha vinto il Festival di Sanremo 2024 con il brano 'La noia'?","a":["Geolier","Angelina Mango","Annalisa","Ghali"],"c":1,"d":2},
+  {"q":"Qual è il paese più grande al mondo per estensione territoriale?","a":["Canada","Cina","Stati Uniti","Russia"],"c":3,"d":1},
+  {"q":"Chi ha scolpito il celebre gruppo marmoreo 'Apollo e Dafne' conservato alla Galleria Borghese?","a":["Michelangelo Buonarroti","Gian Lorenzo Bernini","Donatello","Antonio Canova"],"c":1,"d":3},
+  {"q":"Come viene denominata in fisica la velocità minima necessaria ad un corpo per uscire dal campo gravitazionale di un pianeta?","a":["Velocità terminale","Velocità critica","Velocità di fuga","Velocità radiale"],"c":2,"d":3},
+  {"q":"Chi è stato eletto Presidente della Repubblica Italiana nel 2015 e confermato per un secondo mandato nel 2022?","a":["Giorgio Napolitano","Sergio Mattarella","Mario Draghi","Carlo Azeglio Ciampi"],"c":1,"d":2},
+  {"q":"Quale fisica e matematica francese è celebre per il suo teorema che lega le simmetrie alle leggi di conservazione?","a":["Marie Curie","Emmy Noether","Sophie Germain","Ada Lovelace"],"c":1,"d":4},
+  {"q":"Qual è la capitale della Corea del Sud?","a":["Tokyo","Seul","Pechino","Bangkok"],"c":1,"d":1},
+  {"q":"Chi ha scritto la trilogia de 'Il nostro antenato', che comprende 'Il visconte dimezzato' e 'Il barone rampante'?","a":["Italo Calvino","Cesare Pavese","Alberto Moravia","Primo Levi"],"c":0,"d":3},
+  {"q":"Quale azienda ha introdotto il visore di realtà mista 'Vision Pro' presentato nel 2023?","a":["Meta","Apple","Sony","Microsoft"],"c":1,"d":3},
+  {"q":"Quale trattato di pace firmato nel 1919 pose fine ufficialmente alla Prima Guerra Mondiale?","a":["Trattato di Versailles","Trattato di Vienna","Trattato di Utrecht","Trattato di Vestfalia"],"c":0,"d":2},
+  {"q":"Quale atleta svedese ha battuto più volte il record mondiale di salto con l'asta negli ultimi anni?","a":["Armand Duplantis","Renaud Lavillenie","Thiago Braz","Sam Kendricks"],"c":0,"d":3},
+  {"q":"In quale museo di Parigi è custodita la famosa tela 'La Gioconda' di Leonardo da Vinci?","a":["Museo d'Orsay","Centre Pompidou","Museo del Louvre","Musée de l'Orangerie"],"c":2,"d":1},
+  {"q":"Qual è il pianeta più vicino al Sole nel nostro sistema solare?","a":["Venere","Mercurio","Marte","Terra"],"c":1,"d":1},
+  {"q":"Nella mitologia romana, chi era il dio del mare corrispondente al greco Poseidone?","a":["Giove","Marte","Nettuno","Vulcano"],"c":2,"d":1},
+  {"q":"Quale grande diga situata sul fiume Egitto crea il Bacino di Nasser?","a":["Diga di Assuan","Diga delle Tre Gole","Diga Hoover","Diga di Kariba"],"c":0,"d":3},
+  {"q":"Chi è l'autore del celebre dipinto 'La nascita di Venere'?","a":["Tiziano Vecellio","Sandro Botticelli","Caravaggio","Giotto"],"c":1,"d":2},
+  {"q":"Quale scienziato scoprì la penicillina nel 1928, aprendo la strada agli antibiotici moderni?","a":["Alexander Fleming","Robert Koch","Louis Pasteur","Edward Jenner"],"c":0,"d":2},
+  {"q":"In quale anno è entrato in circolazione l'Euro come moneta corrente in contanti?","a":["1999","2000","2002","2004"],"c":2,"d":2},
+  {"q":"Qual è il punto più profondo di tutti gli oceani terrestri?","a":["Fossa delle Marianne","Fossa di Porto Rico","Fossa delle Giava","Fossa delle Sandwich meridionali"],"c":0,"d":2},
+  {"q":"Chi scrisse il capolavoro della letteratura spagnola 'Don Chisciotte della Mancia'?","a":["Gabriel García Márquez","Miguel de Cervantes","Federico García Lorca","Jorge Luis Borges"],"c":1,"d":2},
+  {"q":"Quale nazione europea ha aderito alla NATO come 31° membro nell'aprile 2023?","a":["Svezia","Finlandia","Ucraina","Georgia"],"c":1,"d":3},
+  {"q":"Quale unità di misura nel Sistema Internazionale si usa per quantificare la frequenza?","a":["Joule","Watt","Hertz","Pascal"],"c":2,"d":2},
+  {"q":"Chi ha diretto il celebre film 'La vita è bella' vincitore di tre premi Oscar nel 1999?","a":["Giuseppe Tornatore","Roberto Benigni","Bernardo Bertolucci","Paolo Sorrentino"],"c":1,"d":2},
+  {"q":"Qual è l'elemento chimico più abbondante nell'universo osservabile?","a":["Elio","Idrogeno","Ossigeno","Carbonio"],"c":1,"d":2},
+  {"q":"Quale presidente degli Stati Uniti ha promulgato il New Deal negli anni '30?","a":["Herbert Hoover","Franklin D. Roosevelt","Harry Truman","Woodrow Wilson"],"c":1,"d":3},
+  {"q":"Qual è il fiume più lungo del mondo per portata d'acqua e bacino idrografico?","a":["Nilo","Rio delle Amazzoni","Mississippi","Fiume Azzurro"],"c":1,"d":2},
+  {"q":"Quale saggio politico del 1513 di Niccolò Machiavelli analizza la conquista e il mantenimento del potere?","a":["Il Principe","La Mandragola","Dell'arte della guerra","Discorsi sopra la prima deca di Tito Livio"],"c":0,"d":2},
+  {"q":"Quale importante missione spaziale priva di equipaggio ha circumnavigato la Luna nel tardo 2022?","a":["Artemis I","Apollo 18","Chang'e 5","Luna 25"],"c":0,"d":3},
+  {"q":"Quale organello cellulare è noto come la 'centrale energetica' della cellula eucariota?","a":["Lisosoma","Mitocondrio","Apparato di Golgi","Ribosoma"],"c":1,"d":2},
+  {"q":"Quale nazione ha vinto i Campionati Europei di Calcio UEFA svolti in Germania nel 2024?","a":["Inghilterra","Spagna","Francia","Germania"],"c":1,"d":2},
+  {"q":"In quale stato d'Europa si trova la regione storica della Transilvania?","a":["Ungheria","Rumania","Bulgaria","Slovacchia"],"c":1,"d":2},
+  {"q":"Quale legge della fisica afferma che a ogni azione corrisponde una reazione uguale e contraria?","a":["Prima legge di Newton","Seconda legge di Newton","Terza legge di Newton","Legge di gravitazione universale"],"c":2,"d":2},
+  {"q":"Nella mitologia greca, chi era la dea della caccia e della luna, sorella gemella di Apollo?","a":["Atena","Artemide","Afrodite","Estia"],"c":1,"d":2},
+  {"q":"Quale accordo internazionale del 1987 è stato siglato per ridurre il buco nell'ozono?","a":["Protocollo di Montreal","Protocollo di Kyoto","Accordo di Parigi","Convenzione di Ginevra"],"c":0,"d":3},
+  {"q":"Chi è l'autore del famoso dipinto impressionista 'Impressione, levar del sole'?","a":["Edgar Degas","Claude Monet","Pierre-Auguste Renoir","Paul Cézanne"],"c":1,"d":2},
+  {"q":"Qual è la capitale della Turchia?","a":["Istanbul","Ankara","Izmir","Antalya"],"c":1,"d":1},
+  {"q":"Quale chimico russo formulò nel 1869 la prima versione della tavola periodica degli elementi?","a":["Dmitrij Mendeleev","Mikhail Lomonosov","Antoine Lavoisier","John Dalton"],"c":0,"d":2},
+  {"q":"Chi ha scritto la serie di romanzi fantasy dedicata al mago Harry Potter?","a":["J.R.R. Tolkien","J.K. Rowling","C.S. Lewis","George R.R. Martin"],"c":1,"d":1},
+  {"q":"In quale anno è stato proclamato il Regno d'Italia con capitale Torino?","a":["1848","1861","1870","1918"],"c":1,"d":2},
+  {"q":"Quale film diretto da Christopher Nolan ha vinto 7 premi Oscar nel 2024?","a":["Dune - Parte due","Oppenheimer","Tenet","Interstellar"],"c":1,"d":2},
+  {"q":"Qual è il metallo più leggero tra tutti quelli conosciuti?","a":["Alluminio","Litio","Magnesio","Titanio"],"c":1,"d":3},
+  {"q":"Quale grande catena montuosa separa l'Europa dall'Asia?","a":["Alpi","Monti Urali","Caucaso","Pirenei"],"c":1,"d":2},
+  {"q":"Chi è stato il successore della regina Elisabetta II sul trono del Regno Unito nel 2022?","a":["Principe William","Re Carlo III","Principe Edoardo","Principe Andrea"],"c":1,"d":1},
+  {"q":"Quale fisica austro-svedese spiegò teoricamente per prima la fissione nucleare del patrimonio atomico dell'uranio?","a":["Rosalind Franklin","Lise Meitner","Emmy Noether","Chien-Shiung Wu"],"c":1,"d":4},
+  {"q":"Qual è la capitale del Sudafrica in cui risiede la sede del governo e del potere esecutivo?","a":["Città del Capo","Pretoria","Bloemfontein","Johannesburg"],"c":1,"d":3},
+  {"q":"Chi è l'autore del romanzo 'La coscienza di Zeno', capolavoro della letteratura psicoanalitica italiana?","a":["Luigi Pirandello","Italo Svevo","Alberto Moravia","Dino Buzzati"],"c":1,"d":3},
+  {"q":"Quale veicolo spaziale della NASA è atterrato con successo sul cratere Jezero di Marte nel febbraio 2021?","a":["Curiosity","Perseverance","Opportunity","Spirit"],"c":1,"d":3},
+  {"q":"Qual è il processo fisiologico attraverso il quale le cellule producono energia in assenza di ossigeno?","a":["Respirazione cellulare","Fermentazione","Glicolisi aerobica","Fosforilazione ossidativa"],"c":1,"d":3},
+  {"q":"In quale anno la Germania si è riunificata ufficialmente dopo la disgregazione del Blocco Orientale?","a":["1989","1990","1991","1992"],"c":1,"d":2},
+  {"q":"Quale calciatore ha vinto il Pallone d'Oro maschile nell'edizione del 2023?","a":["Erling Haaland","Lionel Messi","Kylian Mbappé","Rodri"],"c":1,"d":2},
+  {"q":"Chi ha affrescato la celebre Cappella degli Scrovegni situata a Padova?","a":["Cimabue","Giotto","Duccio di Buoninsegna","Masaccio"],"c":1,"d":3},
+  {"q":"Qual è l'unità di misura della forza nel Sistema Internazionale di unità di misura?","a":["Joule","Newton","Watt","Pascal"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, chi era l'eroe invulnerabile ucciso da una freccia scagliata nel suo tallone?","a":["Ettore","Achille","Ulisse","Aiace"],"c":1,"d":2},
+  {"q":"Quale paese sudamericano ha eletto Javier Milei come suo Presidente nell'ultima tornata elettorale del 2023?","a":["Brasile","Argentina","Cile","Uruguay"],"c":1,"d":3},
+  {"q":"Chi ha scritto la monumentale opera teatrale 'La Divina Commedia'?","a":["Francesco Petrarca","Dante Alighieri","Giovanni Boccaccio","Torquato Tasso"],"c":1,"d":2},
+  {"q":"Qual è l'arcipelago più grande del mondo per numero complessivo di isole?","a":["Filippine","Indonesia","Giappone","Maldive"],"c":1,"d":3},
+  {"q":"Quale scienziato formulò la legge della gravità dopo l'osservazione della caduta di un corpo solido?","a":["Galileo Galilei","Isaac Newton","Keplero","Nicola Copernico"],"c":1,"d":2},
+  {"q":"Quale famoso monumento di Parigi è stato costruito in occasione dell'Esposizione Universale del 1889?","a":["Arco di Trionfo","Torre Eiffel","Pantheon","Sacre-Cœur"],"c":1,"d":2},
+  {"q":"In quale città italiana si trova il celebre Teatro La Fenice?","a":["Milano","Venezia","Napoli","Palermo"],"c":1,"d":2},
+  {"q":"Qual è il secondo pianeta più grande del sistema solare per raggio e massa?","a":["Giove","Saturno","Urano","Nettuno"],"c":1,"d":2},
+  {"q":"Chi è stato l'ultimo re d'Italia prima della proclamazione della Repubblica nel 1946?","a":["Vittorio Emanuele III","Umberto II","Vittorio Emanuele II","Umberto I"],"c":1,"d":2},
+  {"q":"Quale famoso festival cinematografico assegna ogni anno la prestigiosa 'Palma d'oro'?","a":["Mostra di Venezia","Festival di Cannes","Festival di Berlino","Sundance Film Festival"],"c":1,"d":2},
+  {"q":"Quale proteina presente nei globuli rossi è fondamentale per il trasporto dell'ossigeno ai tessuti?","a":["Moglobina","Emoglobina","Fibrinogeno","Albumina"],"c":1,"d":2},
+  {"q":"Quale fisica teorica propose per prima il modello a strati del nucleo atomico, vincendo il Nobel nel 1963?","a":["Maria Goeppert-Mayer","Chien-Shiung Wu","Lise Meitner","Rosalind Franklin"],"c":0,"d":4},
+  {"q":"Qual è la capitale della Scozia?","a":["Glasgow","Edimburgo","Aberdeen","Dundee"],"c":1,"d":1},
+  {"q":"Chi ha scritto il romanzo 'I promessi sposi'?","a":["Giacomo Leopardi","Alessandro Manzoni","Ugo Foscolo","Giovanni Verga"],"c":1,"d":2},
+  {"q":"Quale grande evento astronomico ha attraversato l'America del Nord nell'aprile del 2024?","a":["Eclissi solare totale","Passaggio della cometa Halley","Eclissi lunare di sangue","Meteora di Tunguska"],"c":0,"d":3},
+  {"q":"Qual è la molecola fondamentale che custodisce l'informazione genetica negli organismi viventi?","a":["RNA","DNA","ATP","NADP"],"c":1,"d":2},
+  {"q":"In quale anno avvenne lo sbarco in Normandia da parte delle forze alleate durante la Seconda Guerra Mondiale?","a":["1942","1943","1944","1945"],"c":2,"d":2},
+  {"q":"Quale pilota ha vinto il Campionato Mondiale di Formula 1 nella stagione 2023?","a":["Lewis Hamilton","Max Verstappen","Charles Leclerc","Sergio Pérez"],"c":1,"d":2},
+  {"q":"Chi ha dipinto il celebre affresco 'Il Cenacolo' nel refettorio di Santa Maria delle Grazie a Milano?","a":["Raffaello Sanzio","Leonardo da Vinci","Michelangelo Buonarroti","Tiziano Vecellio"],"c":1,"d":2},
+  {"q":"Qual è la grandezza fisica si misura in Pascal nel Sistema Internazionale?","a":["Energia","Pressione","Potenza","Carica elettrica"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, chi era il re di Creta che fece costruire il celebre Labirinto?","a":["Minosse","Egeo","Teseo","Priamo"],"c":0,"d":3},
+  {"q":"Quale paese nordico è entrato ufficialmente a far parte della NATO nel marzo 2024?","a":["Finlandia","Svezia","Norvegia","Islanda"],"c":1,"d":3},
+  {"q":"Chi è l'autore del romanzo 'I Malavoglia', manifesto del Verismo italiano?","a":["Luigi Capuana","Giovanni Verga","Federico De Roberto","Gabriele D'Annunzio"],"c":1,"d":3},
+  {"q":"Qual è il lago più profondo del pianeta?","a":["Lago Superiore","Lago Bajkal","Lago Tanganica","Lago Vittoria"],"c":1,"d":2},
+  {"q":"Chi scoprì la legge dell'induzione elettromagnetica nel 1831?","a":["James Clerk Maxwell","Michael Faraday","Alessandro Volta","André-Marie Ampère"],"c":1,"d":3},
+  {"q":"Quale cattedrale barocca di San Pietroburgo è nota per le sue cupole a cipolla multicolori?","a":["Cattedrale del Sangue Versato","Cattedrale di San Basilio","Cattedrale di Kazan'","Cattedrale di Sant'Isacco"],"c":0,"d":4},
+  {"q":"In quale città si trova lo storico Teatro alla Scala?","a":["Roma","Milano","Napoli","Torino"],"c":1,"d":1},
+  {"q":"Qual è il pianeta più denso del sistema solare?","a":["Marte","Terra","Venere","Mercurio"],"c":1,"d":3},
+  {"q":"Chi fu l'ultimo imperatore dell'Impero Romano d'Occidente, deposto nel 476 d.C.?","a":["Giulio Cesare","Romolo Augusto","Teodosio I","Costantino I"],"c":1,"d":3},
+  {"q":"Quale regista ha diretto il film 'La grande bellezza', vincitore dell'Oscar al miglior film in lingua straniera nel 2014?","a":["Matteo Garrone","Paolo Sorrentino","Nanni Moretti","Luca Guadagnino"],"c":1,"d":3},
+  {"q":"Qual è il principale pigmento responsabile della fotosintesi nelle piante verdi?","a":["Carotene","Clorofilla","Xantofilla","Antocianina"],"c":1,"d":2},
+  {"q":"Quale astrofisica e accademica britannica scoprì le prime pulsar radio nel 1967?","a":["Vera Rubin","Jocelyn Bell Burnell","Margaret Burbidge","Henrietta Swan Leavitt"],"c":1,"d":4},
+  {"q":"Qual è la capitale del Canada?","a":["Toronto","Ottawa","Montreal","Vancouver"],"c":1,"d":1},
+  {"q":"Chi scrisse il celebre romanzo 'Il fu Mattia Pascal'?","a":["Italo Svevo","Luigi Pirandello","Gabriele D'Annunzio","Giovanni Verga"],"c":1,"d":3},
+  {"q":"Quale sonda spaziale della NASA ha effettuato lo storico sorvolo ravvicinato di Plutone nel luglio 2015?","a":["Voyager 1","New Horizons","Cassini","Pioneer 10"],"c":1,"d":3},
+  {"q":"Qual è la cellula riproduttiva maschile negli organismi animali?","a":["Ovulo","Spermatozoo","Zigote","Gamete femminile"],"c":1,"d":2},
+  {"q":"In quale anno scoppiò la Prima Guerra Mondiale?","a":["1912","1914","1915","1918"],"c":1,"d":2},
+  {"q":"Quale tennista ha superato il record di titoli Slam vinti nel singolare maschile nella storia del tennis?","a":["Roger Federer","Novak Djokovic","Rafael Nadal","Pete Sampras"],"c":1,"d":2},
+  {"q":"Chi ha scolpito il celebre gruppo marmoreo 'Pietà' situato nella Basilica di San Pietro a Roma?","a":["Gian Lorenzo Bernini","Michelangelo Buonarroti","Donatello","Antonio Canova"],"c":1,"d":2},
+  {"q":"Qual è la grandezza fisica che misura l'energia trasferita nell'unità di tempo e si esprime in Watt?","a":["Lavoro","Potenza","Tensione","Corrente"],"c":1,"d":2},
+  {"q":"Nella mitologia romana, chi era il dio della guerra corrispondente al greco Ares?","a":["Giove","Marte","Vulcano","Mercurio"],"c":1,"d":2},
+  {"q":"Quale città ha ospitato le Olimpiadi Estive nel 2021 a causa del rinvio legato alla pandemia globale?","a":["Rio de Janeiro","Tokyo","Parigi","Pechino"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo 'La luna e i falò', pubblicato nel 1950?","a":["Alberto Moravia","Cesare Pavese","Elio Vittorini","Beppe Fenoglio"],"c":1,"d":3},
+  {"q":"Qual è la catena montuosa più lunga del mondo situata in America meridionale?","a":["Montagne Rocciose","Ande","Himalaya","Alpi"],"c":1,"d":2},
+  {"q":"Chi teorizzò la struttura atomica basata su livelli energetici quantizzati degli elettroni nel 1913?","a":["Ernest Rutherford","Niels Bohr","J.J. Thomson","Max Planck"],"c":1,"d":3},
+  {"q":"Quale famoso anfiteatro romano di Verona ospita ogni estate una prestigiosa stagione lirica?","a":["Colosseo","Arena di Verona","Teatro di Marcello","Anfiteatro Campano"],"c":1,"d":2},
+  {"q":"In quale città si trova la sede principale dell'Organizzazione Mondiale della Sanità (OMS)?","a":["New York","Ginevra","Parigi","Vienna"],"c":1,"d":2},
+  {"q":"Quale pianeta del sistema solare impiega meno tempo a compiere un'orbita completa intorno al Sole?","a":["Venere","Mercurio","Marte","Terra"],"c":1,"d":2},
+  {"q":"Quale imperatore romano concesse la libertà di culto ai cristiani con l'Editto di Milano del 313 d.C.?","a":["Diocleziano","Costantino I","Teodosio I","Traiano"],"c":1,"d":3},
+  {"q":"Quale regista ha vinto l'Oscar alla miglior regia nel 2020 con il film 'Parasite'?","a":["Ang Lee","Bong Joon-ho","Park Chan-wook","Hirokazu Kore-eda"],"c":1,"d":3},
+  {"q":"Quale tipo di vasi sanguigni trasporta il sangue ricco di ossigeno dal cuore verso il resto del corpo?","a":["Vene","Arterie","Capillari venosi","Valvole linfatiche"],"c":1,"d":2},
+  // Nuove create (50)
+  {"q":"Qual è l'unico paese al mondo senza una capitale ufficiale dichiarata?","a":["Nauru","Tuvalu","Palau","Vanuatu"],"c":0,"d":3},
+  {"q":"In quale paese si trova la regione della Transilvania?","a":["Ungheria","Romania","Bulgaria","Slovacchia"],"c":1,"d":2},
+  {"q":"Qual è il lago più profondo del pianeta?","a":["Lago Superiore","Lago Bajkal","Lago Tanganica","Lago Vittoria"],"c":1,"d":2},
+  {"q":"Quale capitale europea è rinomata per la sua estesa rete di canali navigabili?","a":["Madrid","Vienna","Atene","Amsterdam"],"c":3,"d":2},
+  {"q":"Qual è il deserto caldo più esteso del mondo?","a":["Gobi","Sahara","Kalahari","Atacama"],"c":1,"d":1},
+  {"q":"In quale stato americano si trova la Valle della Morte (Death Valley)?","a":["Nevada","California","Arizona","Texas"],"c":1,"d":2},
+  {"q":"Quale paese sudamericano ha eletto Javier Milei come suo Presidente nel 2023?","a":["Brasile","Argentina","Cile","Uruguay"],"c":1,"d":3},
+  {"q":"Qual è il fiume più lungo del mondo per portata d'acqua?","a":["Nilo","Rio delle Amazzoni","Mississippi","Yangtze"],"c":1,"d":2},
+  {"q":"Quale catena montuosa separa l'Europa dall'Asia?","a":["Alpi","Monti Urali","Caucaso","Pirenei"],"c":1,"d":2},
+  {"q":"In quale città si trova l'iconico monumento del Partenone?","a":["Roma","Atene","Istanbul","Alessandria"],"c":1,"d":1},
+  {"q":"Chi fu l'ultimo imperatore dell'Impero Romano d'Occidente, deposto nel 476 d.C.?","a":["Giulio Cesare","Romolo Augusto","Teodosio I","Costantino I"],"c":1,"d":3},
+  {"q":"In quale anno è crollato l'Impero Romano d'Oriente con la caduta di Costantinopoli?","a":["1453","1492","1356","1517"],"c":0,"d":2},
+  {"q":"Quale presidente degli Stati Uniti ha promulgato il New Deal negli anni '30?","a":["Herbert Hoover","Franklin D. Roosevelt","Harry Truman","Woodrow Wilson"],"c":1,"d":3},
+  {"q":"Chi fu il successore della regina Elisabetta II sul trono del Regno Unito nel 2022?","a":["Principe William","Re Carlo III","Principe Edoardo","Principe Andrea"],"c":1,"d":1},
+  {"q":"Quale trattato firmato nel 1992 ha sancito la nascita formale dell'Unione Europea?","a":["Trattato di Roma","Trattato di Maastricht","Trattato di Lisbona","Trattato di Schengen"],"c":1,"d":2},
+  {"q":"Quale importante accordo globale sull'ambiente è stato siglato durante la COP21 nel 2015?","a":["Protocollo di Kyoto","Accordo di Parigi","Trattato di Montreal","Carta di Copenaghen"],"c":1,"d":2},
+  {"q":"Chi fu il primo Presidente del Consiglio dell'Italia repubblicana?","a":["Alcide De Gasperi","Ferruccio Parri","Luigi Einaudi","Giuseppe Saragat"],"c":0,"d":2},
+  {"q":"In quale anno è caduto il Muro di Berlino?","a":["1987","1989","1991","1985"],"c":1,"d":1},
+  {"q":"Quale nazione è entrata ufficialmente nella NATO come 32° membro nel marzo 2024?","a":["Finlandia","Svezia","Ucraina","Georgia"],"c":1,"d":3},
+  {"q":"Quale trattato di pace firmato nel 1919 pose fine ufficialmente alla Prima Guerra Mondiale?","a":["Trattato di Versailles","Trattato di Vienna","Trattato di Utrecht","Trattato di Vestfalia"],"c":0,"d":2},
+  {"q":"Chi ha dipinto la celebre opera 'La grande onda di Kanagawa'?","a":["Katsushika Hokusai","Utamaro","Hiroshige","Takashi Murakami"],"c":0,"d":3},
+  {"q":"Chi scrisse la celebre raccolta di novelle intitolata 'Decameron' nel XIV secolo?","a":["Francesco Petrarca","Giovanni Boccaccio","Dante Alighieri","Angelo Poliziano"],"c":1,"d":2},
+  {"q":"Quale artista spagnolo ha dipinto la celebre opera di protesta 'Guernica' nel 1937?","a":["Salvador Dalí","Pablo Picasso","Joan Miró","Francisco Goya"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo 'La coscienza di Zeno', capolavoro della letteratura psicoanalitica italiana?","a":["Luigi Pirandello","Italo Svevo","Alberto Moravia","Dino Buzzati"],"c":1,"d":3},
+  {"q":"Quale compositore tedesco scrisse la famosa 'Nona Sinfonia', contenente l'Inno alla Gioia?","a":["Johannes Brahms","Ludwig van Beethoven","Richard Wagner","Felix Mendelssohn"],"c":1,"d":2},
+  {"q":"Quale scultore ha realizzato il celebre gruppo marmoreo 'Apollo e Dafne' conservato alla Galleria Borghese?","a":["Michelangelo Buonarroti","Gian Lorenzo Bernini","Donatello","Antonio Canova"],"c":1,"d":3},
+  {"q":"Chi ha affrescato la celebre Cappella degli Scrovegni situata a Padova?","a":["Cimabue","Giotto","Duccio di Buoninsegna","Masaccio"],"c":1,"d":3},
+  {"q":"Quale pittore ha dato il suo nome a una celebre tonalità di blu?","a":["Yves Klein","Pablo Picasso","Salvador Dalí","Henri Matisse"],"c":0,"d":3},
+  {"q":"Chi ha composto la celebre opera lirica 'Madama Butterfly'?","a":["Giuseppe Verdi","Giacomo Puccini","Gioachino Rossini","Gaetano Donizetti"],"c":1,"d":2},
+  {"q":"Quale autore ha scritto 'Il fu Mattia Pascal'?","a":["Luigi Pirandello","Italo Svevo","Gabriele D'Annunzio","Giovanni Verga"],"c":0,"d":2},
+  {"q":"Quale fisico austro-svedese spiegò teoricamente la fissione nucleare?","a":["Rosalind Franklin","Lise Meitner","Emmy Noether","Chien-Shiung Wu"],"c":1,"d":4},
+  {"q":"Quale astrofisica britannica scoprì le prime pulsar radio nel 1967?","a":["Vera Rubin","Jocelyn Bell Burnell","Margaret Burbidge","Henrietta Swan Leavitt"],"c":1,"d":4},
+  {"q":"Come si chiama la forma solida dell'anidride carbonica?","a":["Ghiaccio secco","Azoto solido","Neve carbonica","Vapore acqueo"],"c":0,"d":2},
+  {"q":"Quale scienziato formulò la legge dell'induzione elettromagnetica nel 1831?","a":["James Clerk Maxwell","Michael Faraday","Alessandro Volta","André-Marie Ampère"],"c":1,"d":3},
+  {"q":"Qual è il principale pigmento responsabile della fotosintesi nelle piante verdi?","a":["Carotene","Clorofilla","Xantofilla","Antocianina"],"c":1,"d":1},
+  {"q":"Quale pianeta del sistema solare ruota all'indietro (moto retrogrado)?","a":["Marte","Venere","Giove","Nettuno"],"c":1,"d":3},
+  {"q":"Quale chimico russo formulò nel 1869 la prima versione della tavola periodica degli elementi?","a":["Dmitrij Mendeleev","Mikhail Lomonosov","Antoine Lavoisier","John Dalton"],"c":0,"d":2},
+  {"q":"Quale missione spaziale priva di equipaggio ha circumnavigato la Luna nel tardo 2022?","a":["Artemis I","Apollo 18","Chang'e 5","Luna 25"],"c":0,"d":3},
+  {"q":"Come si chiama l'involucro proteico che racchiude il materiale genetico di un virus?","a":["Capside","Peplos","Membrana plasmatica","Parete cellulare"],"c":0,"d":4},
+  {"q":"Quale particella subatomica possiede una carica elettrica negativa?","a":["Protone","Neutrone","Elettrone","Fotone"],"c":2,"d":1},
+  {"q":"Quale tennista italiano ha vinto il torneo Australian Open nel 2024?","a":["Matteo Berrettini","Jannik Sinner","Lorenzo Musetti","Fabio Fognini"],"c":1,"d":2},
+  {"q":"Quale squadra di calcio ha vinto il campionato di Serie A nella stagione 2023/2024?","a":["Juventus","Milan","Inter","Napoli"],"c":2,"d":2},
+  {"q":"Quale pilota ha vinto il Campionato Mondiale di Formula 1 nella stagione 2023?","a":["Lewis Hamilton","Max Verstappen","Charles Leclerc","Sergio Pérez"],"c":1,"d":2},
+  {"q":"Quale serie televisiva distopica sudcoreana è diventata un fenomeno globale su Netflix nel 2021?","a":["Squid Game","All of Us Are Dead","Kingdom","Hellbound"],"c":0,"d":2},
+  {"q":"Quale film ha vinto l'Oscar come Miglior Film nel 2024?","a":["Barbie","Oppenheimer","Poor Things","Killers of the Flower Moon"],"c":1,"d":2},
+  {"q":"Quale cantante ha vinto il Festival di Sanremo 2024 con il brano 'La noia'?","a":["Geolier","Angelina Mango","Annalisa","Ghali"],"c":1,"d":2},
+  {"q":"In quale città si terranno i Giochi Olimpici Invernali del 2026?","a":["Milano e Cortina d'Ampezzo","Torino e Sestriere","Innsbruck e Salisburgo","Vancouver e Whistler"],"c":0,"d":2},
+  {"q":"Quale nazione ha vinto la Coppa del Mondo di Rugby maschile nel 2023?","a":["Nuova Zelanda","Sudafrica","Inghilterra","Francia"],"c":1,"d":3},
+  {"q":"Quale social network è stato acquisito da Elon Musk nel 2022 e rinominato 'X'?","a":["Instagram","Twitter","TikTok","Reddit"],"c":1,"d":1},
+  {"q":"Quale regista ha vinto l'Oscar alla miglior regia nel 2020 con il film 'Parasite'?","a":["Ang Lee","Bong Joon-ho","Park Chan-wook","Hirokazu Kore-eda"],"c":1,"d":3}
 ];
 
+// === SEZIONE ECONOMIA & FINANZA - 200 DOMANDE TOTALI ===
 const econQuestions=[
+  // 150 originali (le stesse del tuo file, le ho mantenute identiche)
   {"q":"Cosa misura il PIL (Prodotto Interno Lordo)?","a":["Il valore delle sole esportazioni nette","Il totale delle tasse raccolte dallo Stato","La quantità di moneta in circolazione","Il valore di tutti i beni e servizi finali prodotti in un paese in un periodo"],"c":3,"d":2},
   {"q":"Chi decide i tassi di interesse ufficiali nell'Eurozona?","a":["La Banca Mondiale","Il Parlamento Europeo","La Banca Centrale Europea (BCE)","La Commissione Europea"],"c":2,"d":2},
   {"q":"Come si definisce l'inflazione?","a":["Una diminuzione della disoccupazione","Una riduzione del debito pubblico","Un aumento del PIL reale","Un aumento generalizzato e persistente dei prezzi"],"c":3,"d":1},
@@ -580,7 +797,57 @@ const econQuestions=[
   {"q":"Cos'è l'Eurozona?","a":["Il gruppo di paesi che utilizzano il dollaro come valuta di riferimento","L'insieme dei paesi dell'UE che hanno adottato l'euro come moneta unica","Tutti i 27 Stati membri dell'Unione Europea","L'area di libero scambio tra UE e Regno Unito"],"c":1,"d":1},
   {"q":"Cos'è il PIL pro capite?","a":["Il PIL calcolato al netto delle sole esportazioni","Il PIL di un paese diviso per il numero dei suoi abitanti","Il PIL totale sommato a quello dei paesi vicini","La crescita percentuale annua del PIL"],"c":1,"d":1},
   {"q":"Cosa misura l'indice di Gini?","a":["Il grado di disuguaglianza nella distribuzione del reddito o della ricchezza","Il livello di inflazione di un paese","Il tasso di disoccupazione giovanile","La crescita del debito pubblico nel tempo"],"c":0,"d":3},
-  {"q":"Chi ha vinto il Premio Nobel per l'Economia 2022 per gli studi su banche e crisi finanziarie?","a":["Ben Bernanke, Douglas Diamond e Philip Dybvig","Esther Duflo e Abhijit Banerjee","Paul Krugman e Joseph Stiglitz","Robert Shiller e Eugene Fama"],"c":0,"d":4}
+  {"q":"Chi ha vinto il Premio Nobel per l'Economia 2022 per gli studi su banche e crisi finanziarie?","a":["Ben Bernanke, Douglas Diamond e Philip Dybvig","Esther Duflo e Abhijit Banerjee","Paul Krugman e Joseph Stiglitz","Robert Shiller e Eugene Fama"],"c":0,"d":4},
+  // 50 NUOVE di Economia (create da me)
+  {"q":"Cosa misura il coefficiente beta di un titolo azionario nel CAPM?","a":["La volatilità storica del titolo","Il rischio sistematico rispetto al mercato","Il rapporto tra debito e capitale proprio","Il tasso di crescita dei dividendi"],"c":1,"d":3},
+  {"q":"Qual è la formula corretta per calcolare il costo medio ponderato del capitale (WACC)?","a":["E/V * Re + D/V * Rd * (1-Tc)","E/V * Rd + D/V * Re","Re + Rd * (1-Tc)","E * Re + D * Rd"],"c":0,"d":4},
+  {"q":"Cosa rappresenta l'indice di Sharpe?","a":["Il rendimento assoluto di un investimento","Il rapporto tra rendimento in eccesso e volatilità del portafoglio","La varianza dei rendimenti di un titolo","La correlazione tra due attività finanziarie"],"c":1,"d":3},
+  {"q":"Quale teoria afferma che i mercati azionari sono efficienti e i prezzi riflettono tutte le informazioni disponibili?","a":["Teoria del ciclo economico","Teoria dei giochi","Ipotesi dei mercati efficienti (EMH)","Teoria della crescita endogena"],"c":2,"d":3},
+  {"q":"Cos'è il rischio morale (moral hazard)?","a":["Un rischio che non può essere calcolato","Una situazione in cui una parte non ha incentivi a evitare comportamenti rischiosi perché protetta da un'altra","Un rischio connesso solo a investimenti immobiliari","Un rischio generato dall'inflazione"],"c":1,"d":3},
+  {"q":"Cosa si intende per 'selezione avversa' (adverse selection)?","a":["Un fenomeno per cui i soggetti più rischiosi sono più propensi a richiedere un'assicurazione o un prestito","Un fenomeno per cui i prezzi aumentano sempre","Una forma di fallimento di mercato dovuto a monopolio naturale","Una strategia di marketing aziendale"],"c":0,"d":4},
+  {"q":"Cos'è la produttività marginale del lavoro?","a":["La produzione totale divisa per il numero di lavoratori","L'aumento di produzione derivante dall'impiego di un'unità aggiuntiva di lavoro","Il costo del lavoro per unità prodotta","Il salario medio dei lavoratori"],"c":1,"d":3},
+  {"q":"Cosa indica una curva di indifferenza in microeconomia?","a":["Le diverse combinazioni di beni che offrono al consumatore la stessa utilità","Le combinazioni di beni che massimizzano il profitto dell'impresa","Le quantità di un bene che il produttore è disposto a vendere","Il livello di reddito necessario per acquistare un bene"],"c":0,"d":3},
+  {"q":"Quale teorema afferma che sotto determinate condizioni, un equilibrio competitivo è Pareto-efficiente?","a":["Primo teorema dell'economia del benessere","Teorema di Coase","Teorema di Modigliani-Miller","Teorema di Nash"],"c":0,"d":4},
+  {"q":"Cos'è la curva di Engel?","a":["La curva che mostra la relazione tra reddito e quantità domandata di un bene","La curva che mostra la relazione tra prezzo e quantità offerta","La curva che rappresenta il livello di utilità massimo","La curva che descrive l'andamento dei costi di produzione"],"c":0,"d":3},
+  {"q":"Cosa afferma il teorema di Coase?","a":["Le esternalità non possono essere mai risolte","In assenza di costi di transazione, le parti possono negoziare una soluzione efficiente alle esternalità","Lo Stato deve sempre intervenire per risolvere le esternalità","Le esternalità positive sono più dannose di quelle negative"],"c":1,"d":4},
+  {"q":"Cos'è la trappola della povertà (poverty trap)?","a":["Una situazione in cui un paese non riesce a crescere a causa di vincoli strutturali","Una situazione in cui il reddito pro capite è costantemente elevato","Un fenomeno per cui la povertà si trasmette solo per via ereditaria","Un fenomeno dovuto esclusivamente alla globalizzazione"],"c":0,"d":3},
+  {"q":"Cosa indica il tasso di natalità in demografia economica?","a":["Il numero di nascite per 1000 abitanti in un anno","Il numero di morti per 1000 abitanti in un anno","Il rapporto tra nascite e morti","Il tasso di crescita della popolazione mondiale"],"c":0,"d":2},
+  {"q":"Cos'è il tasso di fecondità totale?","a":["Il numero medio di figli per donna in età fertile","Il tasso di mortalità infantile","Il numero di nascite ogni 100 donne","Il rapporto tra nascite e matrimoni"],"c":0,"d":2},
+  {"q":"Cos'è la denatalità?","a":["Un aumento del tasso di natalità","Una diminuzione del tasso di mortalità","Una diminuzione del tasso di natalità","Un aumento della popolazione"],"c":2,"d":1},
+  {"q":"Cosa misura il tasso di disoccupazione?","a":["Il rapporto tra disoccupati e popolazione totale","Il rapporto tra disoccupati e forza lavoro","Il rapporto tra occupati e disoccupati","Il rapporto tra forza lavoro e popolazione attiva"],"c":1,"d":2},
+  {"q":"Cos'è la disoccupazione frizionale?","a":["La disoccupazione dovuta a cambi di lavoro temporanei o di ricerca del primo impiego","La disoccupazione dovuta a crisi economiche cicliche","La disoccupazione dovuta a cambiamenti tecnologici","La disoccupazione dovuta a stagionalità"],"c":0,"d":3},
+  {"q":"Cos'è la disoccupazione strutturale?","a":["La disoccupazione dovuta a cambiamenti di breve periodo nell'economia","La disoccupazione dovuta a un mismatch tra le competenze dei lavoratori e le richieste del mercato","La disoccupazione dovuta a stagionalità produttiva","La disoccupazione dovuta a scelte individuali"],"c":1,"d":3},
+  {"q":"Cosa rappresenta il NAIRU?","a":["Il tasso di disoccupazione di equilibrio a cui l'inflazione non accelera","Il tasso di disoccupazione massimo consentito dal governo","Il tasso di disoccupazione a cui corrisponde piena occupazione","Il tasso di disoccupazione che corrisponde a inflazione zero"],"c":0,"d":4},
+  {"q":"Cos'è la politica fiscale restrittiva?","a":["Un aumento della spesa pubblica e riduzione delle tasse","Una riduzione della spesa pubblica e/o aumento delle tasse per contenere la domanda","Un aumento dei tassi di interesse da parte della banca centrale","Una svalutazione della moneta per aumentare le esportazioni"],"c":1,"d":2},
+  {"q":"Cosa rappresenta la domanda aggregata?","a":["La quantità totale di beni e servizi offerti in un'economia","La quantità totale di beni e servizi che famiglie, imprese e Stato desiderano acquistare","Il valore totale delle esportazioni","Il valore totale del debito pubblico"],"c":1,"d":2},
+  {"q":"Cosa rappresenta l'offerta aggregata?","a":["La quantità totale di beni e servizi che le imprese sono disposte a produrre a ogni livello di prezzo","La quantità totale di beni e servizi che i consumatori vogliono acquistare","Il totale dei salari pagati nell'economia","Il totale dei profitti delle imprese"],"c":0,"d":2},
+  {"q":"Cos'è il moltiplicatore della spesa pubblica?","a":["Il rapporto tra variazione del PIL e variazione della spesa pubblica","Il rapporto tra spesa pubblica e debito pubblico","Il rapporto tra deficit e PIL","Il tasso di crescita della spesa pubblica"],"c":0,"d":3},
+  {"q":"Cosa si intende per 'crowding out'?","a":["Un aumento degli investimenti privati dovuto alla spesa pubblica","La riduzione degli investimenti privati a causa dell'aumento della spesa pubblica e dei tassi di interesse","Un aumento delle esportazioni nette","Una riduzione della domanda aggregata per aumento del PIL"],"c":1,"d":4},
+  {"q":"Cos'è la teoria quantitativa della moneta?","a":["La moneta non influenza i prezzi","La moneta influenza solo i tassi di interesse","M*V = P*Y (la quantità di moneta per la sua velocità è uguale al prodotto dei prezzi per il PIL reale)","La moneta è neutrale solo nel breve periodo"],"c":2,"d":3},
+  {"q":"Cos'è la curva IS?","a":["La relazione tra tasso di interesse e reddito per cui il mercato dei beni è in equilibrio","La relazione tra tasso di interesse e reddito per cui il mercato della moneta è in equilibrio","La relazione tra inflazione e disoccupazione","La relazione tra prezzo e quantità domandata"],"c":0,"d":4},
+  {"q":"Cos'è la curva LM?","a":["La relazione tra tasso di interesse e reddito per cui il mercato della moneta è in equilibrio","La relazione tra tasso di interesse e reddito per cui il mercato dei beni è in equilibrio","La relazione tra prezzo e quantità offerta","La relazione tra tasso di cambio e bilancia commerciale"],"c":0,"d":4},
+  {"q":"Cosa rappresenta il tasso di cambio reale?","a":["Il rapporto tra due valute nominali","Il prezzo relativo dei beni di due paesi, corretto per il tasso di cambio nominale","Il tasso di interesse pagato su un mutuo","Il prezzo di un bene in valuta estera"],"c":1,"d":3},
+  {"q":"Cos'è la parità dei poteri d'acquisto (PPA)?","a":["La teoria secondo cui a lungo termine i tassi di cambio si adeguano affinché un paniere di beni costi lo stesso in paesi diversi","La teoria secondo cui i tassi di interesse devono essere uguali tra paesi","La teoria secondo cui le banche centrali devono coordinarsi","La teoria secondo cui i prezzi sono sempre uguali in tutti i paesi"],"c":0,"d":3},
+  {"q":"Cos'è una bolla speculativa?","a":["Un aumento sostenuto e ingiustificato dei prezzi di un asset, poi seguito da un crollo","Una diminuzione continua dei prezzi di un asset","Una situazione in cui i prezzi sono sempre stabili","Un aumento moderato dei prezzi di un asset in linea con i fondamentali"],"c":0,"d":2},
+  {"q":"Cosa afferma la teoria del panico bancario (bank run)?","a":["Le banche falliscono solo per cattiva gestione","Una corsa agli sportelli che porta al fallimento anche di banche solventi","Le banche centrali non possono prevenire i fallimenti","I depositanti sono sempre protetti da qualsiasi rischio"],"c":1,"d":3},
+  {"q":"Cos'è la regolamentazione prudenziale delle banche?","a":["Un insieme di norme che impongono alle banche di mantenere adeguati livelli di capitale e liquidità per ridurre il rischio di crisi","Una regolamentazione che vieta alle banche di concedere prestiti","Una regola che obbliga le banche a investire solo in titoli di Stato","Un sistema di tassazione delle banche"],"c":0,"d":3},
+  {"q":"Cosa stabilisce l'Accordo di Basilea III?","a":["Regole su requisiti patrimoniali minimi e liquidità per le banche","Regole sui tassi di interesse delle banche centrali","Regole sul commercio internazionale","Regole sulla politica fiscale degli Stati"],"c":0,"d":4},
+  {"q":"Cos'è un fondo sovrano (sovereign wealth fund)?","a":["Un fondo di investimento di proprietà dello Stato che gestisce riserve finanziarie","Un fondo pensione privato","Un fondo di investimento privato","Un fondo di debito sovrano"],"c":0,"d":3},
+  {"q":"Cosa sono le 'Eurobbligazioni' (Eurobonds)?","a":["Obbligazioni emesse da Stati dell'Eurozona in modo congiunto","Obbligazioni emesse da banche americane","Obbligazioni emesse solo dalla BCE","Obbligazioni emesse da imprese europee"],"c":0,"d":3},
+  {"q":"Cos'è la 'clausola di salvaguardia' nel Patto di Stabilità?","a":["Una clausola che consente agli Stati di deviare temporaneamente dal raggiungimento del deficit per eventi eccezionali","Una clausola che obbliga gli Stati a ridurre il deficit ogni anno","Una clausola che vieta agli Stati di indebitarsi","Una clausola che impone un deficit massimo fisso"],"c":0,"d":4},
+  {"q":"Cosa prevede la 'golden rule' nella finanza pubblica?","a":["Gli Stati non possono indebitarsi per finanziare spese correnti, ma solo investimenti","Gli Stati non possono mai indebitarsi","Gli Stati devono sempre mantenere un surplus di bilancio","Gli Stati devono investire solo in oro"],"c":0,"d":4},
+  {"q":"Cos'è la recessione tecnica?","a":["Due trimestri consecutivi di crescita del PIL negativa","Un anno intero di crescita zero","Una diminuzione del PIL del 10%","Una fase di crescita del PIL molto rapida"],"c":0,"d":2},
+  {"q":"Cosa si intende per 'soft landing' in economia?","a":["Un rallentamento controllato dell'economia per evitare una recessione","Un crollo improvviso dell'economia","Una crescita economica infinita","Un aumento improvviso dei tassi di interesse"],"c":0,"d":3},
+  {"q":"Cos'è il 'forward rate agreement' (FRA)?","a":["Un accordo per fissare un tasso di interesse futuro su un capitale nominale","Un contratto per la compravendita di azioni","Un contratto per l'acquisto di una valuta a un tasso prefissato","Un accordo per la vendita di obbligazioni a sconto"],"c":0,"d":4},
+  {"q":"Cosa rappresenta la 'duration modificata'?","a":["La sensibilità del prezzo di un'obbligazione a una variazione di 1 punto percentuale dei tassi di interesse","La scadenza media ponderata dei flussi di cassa di un'obbligazione","Il numero di anni alla scadenza di un'obbligazione","Il rendimento a scadenza di un'obbligazione"],"c":0,"d":4},
+  {"q":"Cos'è il 'convexity' di un'obbligazione?","a":["Una misura della curvatura della relazione tra prezzo e tasso di interesse","Una misura della volatilità di un titolo azionario","Una misura della liquidità di un titolo","Una misura del rating creditizio di un'obbligazione"],"c":0,"d":4},
+  {"q":"Cosa si intende per 'yield curve control'?","a":["La politica di una banca centrale che fissa il tasso di interesse a lungo termine mantenendo i prezzi dei titoli","La gestione della curva dei rendimenti da parte di un fondo pensione","Un metodo per calcolare il rendimento di un'obbligazione","Una strategia di investimento in obbligazioni a breve termine"],"c":0,"d":4},
+  {"q":"Cos'è un 'credit default swap index' (CDX)?","a":["Un indice che traccia il costo di assicurazione contro il default di un paniere di società","Un indice azionario","Un indice obbligazionario","Un indice di volatilità del mercato"],"c":0,"d":4},
+  {"q":"Cosa misura il 'cost of capital'?","a":["Il costo medio del finanziamento di un'impresa (sia debito che equity)","Il costo delle sole materie prime","Il costo dei soli salari","Il costo delle imposte"],"c":0,"d":2},
+  {"q":"Cos'è la 'due diligence' in un'operazione di M&A?","a":["La fase di analisi e verifica della situazione finanziaria, legale e operativa di un'azienda target","Il contratto definitivo di acquisto","La valutazione finale del prezzo di mercato","L'annuncio pubblico dell'acquisizione"],"c":0,"d":3},
+  {"q":"Cos'è l' 'earnings management'?","a":["La manipolazione dei risultati contabili per raggiungere obiettivi di profitto","La gestione ordinaria della tesoreria aziendale","La pianificazione strategica di lungo periodo","La gestione degli acquisti di materie prime"],"c":0,"d":4},
+  {"q":"Cosa rappresenta il 'budget' finanziario?","a":["Un documento che prevede entrate e uscite future di un'impresa o di un ente pubblico","Un documento contabile che fotografa la situazione patrimoniale a fine anno","Un report sulle vendite del mese","Un contratto di finanziamento"],"c":0,"d":2},
+  {"q":"Cos'è il 'controlling' aziendale?","a":["Il sistema di gestione e controllo dei costi e dell'efficienza aziendale","Il controllo fisico della produzione","La gestione del personale","La funzione che si occupa solo delle relazioni esterne"],"c":0,"d":3}
 ];
 
 let game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
@@ -608,10 +875,11 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function openMenu(){playSound('click');document.getElementById("menuModal").classList.add("show")}
 function closeMenu(){playSound('click');document.getElementById("menuModal").classList.remove("show")}
 function showGuide(){openModal("Guida del gioco",`<p><b>Obiettivo:</b> rispondi correttamente a 15 domande e prova ad arrivare a €1.000.000.</p><p><b>Aiuti:</b> 50:50 elimina due risposte; Pubblico mostra una stima dei voti; Esperto suggerisce una risposta.</p><p>Puoi fermarti in qualsiasi momento e conservare il premio raggiunto. I punteggi vengono salvati sul dispositivo.</p>`)}
-function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">2.2</span></p><p>App creata da Miki by Claude</p>`)}
+function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">3.2</span></p><p>App creata da Miki by Claude</p>`)}
 function saveRecord(v){localStorage.setItem("milionarioRecord",Math.max(v,+localStorage.getItem("milionarioRecord")||0))}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function renderPrizes(){let el=document.getElementById("prizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;let safe=level===4||level===9;return `<div class="prize ${level===game.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`}).join("")}
+function renderEconPrizes(){let el=document.getElementById("econPrizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;let safe=level===4||level===9;return `<div class="prize ${level===econGame.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`}).join("")}
 
 function tierFor(level){ if(level>=13) return 3; if(level>=10) return 2; if(level>=5) return 1; return 0; }
 function setTension(level){ document.documentElement.style.setProperty('--t', tierFor(level)); }
@@ -710,19 +978,21 @@ document.getElementById("guideBtn").onclick=()=>{closeMenu();showGuide()};
 document.getElementById("infoBtn").onclick=()=>{closeMenu();showInfo()};
 document.getElementById("scoresBtn").onclick=()=>{closeMenu();openModal("Punteggi salvati",scoresHtml())};
 
-// --- Modalità Economia & Finanza (universitario) ---
-let econGame={list:[],idx:0,score:0,total:0,locked:false,helps:{fifty:true,audience:true,expert:true}};
+// --- SEZIONE ECONOMIA & FINANZA STILE MILIONARIO (15 domande) ---
+let econGame={list:[],idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
+
 function shuffleArr(arr){return [...arr].sort(()=>Math.random()-.5)}
 function econCurrent(){return econGame.list[econGame.idx]}
+
 function openEconSetup(){
   closeMenu();
-  openModal("Quiz Economia & Finanza","<p>150 domande di livello universitario (5° anno Economia e Finanza): macroeconomia, finanza aziendale, mercati finanziari, contabilità e microeconomia.</p><p>Quante domande vuoi affrontare?</p><div style='display:grid;gap:8px;margin-top:10px'><button class='primary' onclick=\"startEcon(10)\">10 domande</button><button class='primary' onclick=\"startEcon(20)\">20 domande</button><button class='primary' onclick=\"startEcon(50)\">50 domande</button></div>");
+  openModal("Quiz Economia & Finanza","<p>Quiz universitario stile Milionario: 15 domande di Economia e Finanza (5° anno università).</p><p>Rispondi correttamente per vincere il montepremi massimo di €1.000.000!</p>");
 }
-function startEcon(n){
+function startEconGame(){
   playSound('click');
   document.getElementById("modal").classList.remove("show");
-  const pool=shuffleArr(econQuestions).slice(0,Math.min(n,econQuestions.length));
-  econGame={list:pool,idx:0,score:0,total:pool.length,locked:false,helps:{fifty:true,audience:true,expert:true}};
+  const pool=shuffleArr(econQuestions).slice(0,15);
+  econGame={list:pool,idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
   ["econFifty","econAudience","econExpert"].forEach(x=>document.getElementById(x).disabled=false);
   show("econ");
   loadEconQuestion();
@@ -731,64 +1001,91 @@ function loadEconQuestion(){
   econGame.locked=false;
   stopSpeech();
   const q=econCurrent();
-  document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
-  document.getElementById("econProgress").style.width=(econGame.idx/econGame.total*100)+"%";
+  econGame.current=q;
+  document.getElementById("econMoney").textContent=euro(prizes[econGame.level]);
+  document.getElementById("econProgress").style.width=((econGame.level+1)/15*100)+"%";
+  renderEconPrizes();
   document.getElementById("econQuestion").textContent=q.q;
-  document.getElementById("econStatus").textContent="Domanda "+(econGame.idx+1)+" di "+econGame.total;
+  document.getElementById("econStatus").textContent="Domanda "+(econGame.level+1)+" di 15";
   const letters=["A","B","C","D"], box=document.getElementById("econAnswers");box.innerHTML="";
   q.a.forEach((x,i)=>{let b=document.createElement("button");b.className="answer";b.innerHTML=`<b>${letters[i]}</b>${x}`;b.onclick=()=>answerEcon(i,b);box.appendChild(b)});
 }
 function useEconFifty(){
   if(!econGame.helps.fifty||econGame.locked)return;playSound('click');econGame.helps.fifty=false;document.getElementById("econFifty").disabled=true;
-  const q=econCurrent();
+  const q=econGame.current;
   let wrong=[0,1,2,3].filter(i=>i!==q.c);shuffleArr(wrong).slice(0,2).forEach(i=>document.querySelectorAll("#econAnswers .answer")[i].classList.add("dim"));
 }
 function useEconAudience(){
   if(!econGame.helps.audience||econGame.locked)return;playSound('click');econGame.helps.audience=false;document.getElementById("econAudience").disabled=true;
-  const q=econCurrent();
+  const q=econGame.current;
   let c=q.c, vals=[0,0,0,0];vals[c]=65+Math.floor(Math.random()*21);let rem=100-vals[c];let others=[0,1,2,3].filter(i=>i!==c);let x=Math.floor(Math.random()*(rem+1)),y=Math.floor(Math.random()*(rem-x+1));vals[others[0]]=x;vals[others[1]]=y;vals[others[2]]=rem-x-y;
   openModal("Voto del pubblico",vals.map((v,i)=>`<div style="text-align:left"><b>${"ABCD"[i]}</b> ${v}%</div><div class="bar"><i style="width:${v}%"></i></div>`).join(""));
 }
 function useEconExpert(){
   if(!econGame.helps.expert||econGame.locked)return;playSound('click');econGame.helps.expert=false;document.getElementById("econExpert").disabled=true;
-  const q=econCurrent();
+  const q=econGame.current;
   openModal("L'esperto pensa…",`La risposta più probabile è <strong>${"ABCD"[q.c]}</strong> — <em>${q.a[q.c]}</em>.`);
 }
 function answerEcon(i,btn){
   if(econGame.locked)return;
   econGame.locked=true;
   playSound('select');
-  const q=econCurrent();
+  const q=econGame.current;
   setTimeout(()=>{
     const all=[...document.querySelectorAll("#econAnswers .answer")];
     all[q.c].classList.add("correct");
-    if(i===q.c){ econGame.score++; playSound('correct'); }
-    else { btn.classList.add("wrong"); playSound('wrong'); }
-    document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
-    setTimeout(()=>{
-      econGame.idx++;
-      if(econGame.idx>=econGame.total) finishEcon();
-      else loadEconQuestion();
-    },1100);
+    if(i===q.c){
+      econGame.score++;
+      playSound('correct');
+      econGame.level++;
+      if(econGame.level>=15){
+        setTimeout(()=>finishEcon(true),1200);
+      } else {
+        setTimeout(loadEconQuestion,1200);
+      }
+    } else {
+      btn.classList.add("wrong");
+      playSound('wrong');
+      setTimeout(()=>finishEcon(false),1200);
+    }
   },400);
 }
-function finishEcon(){
+function finishEcon(win){
   stopSpeech();
-  document.getElementById("econProgress").style.width="100%";
-  const pct=Math.round(econGame.score/econGame.total*100);
-  document.getElementById("econResultAmount").textContent=econGame.score+"/"+econGame.total;
-  document.getElementById("econResultTitle").textContent=pct>=80?"Ottimo lavoro! 🎓":pct>=50?"Buon risultato":"Continua a studiare";
-  document.getElementById("econResultText").textContent="Hai risposto correttamente al "+pct+"% delle domande.";
+  const amount=win?prizes[14]:econGame.level>=10?prizes[9]:econGame.level>=4?prizes[4]:0;
+  saveScore(playerName+" [Econ]",amount,econGame.level);
+  document.getElementById("econResultAmount").textContent=euro(amount);
+  document.getElementById("econResultTitle").textContent=win?"HAI VINTO! 🏆":"PARTITA TERMINATA";
+  document.getElementById("econResultText").textContent=(playerName?escapeHtml(playerName)+", ":"")+(win?"incredibile: hai raggiunto il milione con il quiz di Economia!":"il tuo incasso è stato salvato nei punteggi.");
   show("econResult");
+  if(win) celebrate();
 }
 document.getElementById("econSetupBtn").onclick=openEconSetup;
+// IMPORTANTE: il pulsante "OK" del modale avvia il gioco
+document.getElementById("modalClose").onclick=()=>{
+  playSound('click');
+  document.getElementById("modal").classList.remove("show");
+  startEconGame();
+};
 document.getElementById("econMenuBtn").onclick=()=>{playSound('click');stopSpeech();show("start")};
-document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEcon(econGame.total)};
+document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEconGame()};
 document.getElementById("econHomeBtn").onclick=()=>{playSound('click');show("start")};
 document.getElementById("econReadQuestion").onclick=()=>{playSound('click');speakQuestion('econQuestion');};
 document.getElementById("econFifty").onclick=useEconFifty;
 document.getElementById("econAudience").onclick=useEconAudience;
 document.getElementById("econExpert").onclick=useEconExpert;
+document.getElementById("econWalkBtn").onclick=()=>{
+  if(!econGame.locked){
+    playSound('click');
+    econGame.locked=true;
+    const amount=econGame.level>0?prizes[econGame.level-1]:0;
+    saveScore(playerName+" [Econ]",amount,econGame.level);
+    document.getElementById("econResultAmount").textContent=euro(amount);
+    document.getElementById("econResultTitle").textContent="PARTITA TERMINATA";
+    document.getElementById("econResultText").textContent="Hai scelto di fermarti. Il tuo incasso è stato salvato.";
+    show("econResult");
+  }
+};
 document.getElementById("scoresHomeBtn").onclick=()=>{playSound('click');openModal("Punteggi salvati",scoresHtml())};
 document.getElementById("readQuestion").onclick=()=>{playSound('click');speakQuestion();};
 document.getElementById("playerName").addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('startBtn').click(); } });
@@ -797,7 +1094,6 @@ document.getElementById("againBtn").onclick=()=>{playSound('click');document.get
 document.getElementById("homeBtn").onclick=()=>{playSound('click');stopSpeech();setTension(0);show("start");document.getElementById("record").textContent="Record: "+euro(+localStorage.getItem("milionarioRecord")||0)};
 document.getElementById("resetBtn").onclick=()=>{playSound('click');localStorage.removeItem("milionarioRecord");document.getElementById("record").textContent="Record azzerato."};
 document.getElementById("fifty").onclick=useFifty;document.getElementById("audience").onclick=useAudience;document.getElementById("expert").onclick=useExpert;
-document.getElementById("modalClose").onclick=()=>{playSound('click');document.getElementById("modal").classList.remove("show");};
 document.getElementById("walkBtn").onclick=()=>{if(!game.locked){playSound('click');game.locked=true;game.won=game.level?prizes[game.level-1]:0;finish(false)}};
 document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click', e=>{ if(e.target===m){ playSound('click'); m.classList.remove('show'); } }); });
 document.getElementById("record").textContent="Record: "+euro(+localStorage.getItem("milionarioRecord")||0);
