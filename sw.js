@@ -1,8 +1,8 @@
-const CACHE_NAME = "milionario-v8";
+const CACHE_NAME = "milionario-v9";
 const ASSETS = [
   "./",
   "./index.html",
-  "./manifest.json",
+  "./manifest.j⁵son",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-192.png",
