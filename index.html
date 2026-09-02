@@ -797,7 +797,7 @@ const econQuestions=[
   {"q":"Cos'è il PIL pro capite?","a":["Il PIL calcolato al netto delle sole esportazioni","Il PIL di un paese diviso per il numero dei suoi abitanti","Il PIL totale sommato a quello dei paesi vicini","La crescita percentuale annua del PIL"],"c":1,"d":1},
   {"q":"Cosa misura l'indice di Gini?","a":["Il grado di disuguaglianza nella distribuzione del reddito o della ricchezza","Il livello di inflazione di un paese","Il tasso di disoccupazione giovanile","La crescita del debito pubblico nel tempo"],"c":0,"d":3},
   {"q":"Chi ha vinto il Premio Nobel per l'Economia 2022 per gli studi su banche e crisi finanziarie?","a":["Ben Bernanke, Douglas Diamond e Philip Dybvig","Esther Duflo e Abhijit Banerjee","Paul Krugman e Joseph Stiglitz","Robert Shiller e Eugene Fama"],"c":0,"d":4},
-  // 50 NUOVE
+  // 50 NUOVE di Economia
   {"q":"Cosa misura il coefficiente beta di un titolo azionario nel CAPM?","a":["La volatilità storica del titolo","Il rischio sistematico rispetto al mercato","Il rapporto tra debito e capitale proprio","Il tasso di crescita dei dividendi"],"c":1,"d":3},
   {"q":"Qual è la formula corretta per calcolare il costo medio ponderato del capitale (WACC)?","a":["E/V * Re + D/V * Rd * (1-Tc)","E/V * Rd + D/V * Re","Re + Rd * (1-Tc)","E * Re + D * Rd"],"c":0,"d":4},
   {"q":"Cosa rappresenta l'indice di Sharpe?","a":["Il rendimento assoluto di un investimento","Il rapporto tra rendimento in eccesso e volatilità del portafoglio","La varianza dei rendimenti di un titolo","La correlazione tra due attività finanziarie"],"c":1,"d":3},
@@ -872,7 +872,6 @@ function getNextEconQuestions() {
 // --- VARIABILI DI GIOCO ---
 let game={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
 let econGame={list:[],idx:0,score:0,total:15,level:0,current:null,locked:false,helps:{fifty:true,audience:true,expert:true}};
-let econUsedSet=new Set();
 
 function euro(n){return "€"+n.toLocaleString("it-IT")}
 function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
@@ -898,7 +897,7 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function openMenu(){playSound('click');document.getElementById("menuModal").classList.add("show")}
 function closeMenu(){playSound('click');document.getElementById("menuModal").classList.remove("show")}
 function showGuide(){openModal("Guida del gioco",`<p><b>Obiettivo:</b> rispondi correttamente a 15 domande e prova ad arrivare a €1.000.000.</p><p><b>Aiuti:</b> 50:50 elimina due risposte; Pubblico mostra una stima dei voti; Esperto suggerisce una risposta.</p><p>Puoi fermarti in qualsiasi momento e conservare il premio raggiunto. I punteggi vengono salvati sul dispositivo.</p>`)}
-function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">3.7</span></p><p>App creata da Miki by Claude</p>`)}
+function showInfo(){openModal("Info app",`<p><b>Quiz Milionario</b></p><p>App PWA ottimizzata per smartphone.</p><p>Versione <span id="app-version">3.8</span></p><p>App creata da Miki by Claude</p>`)}
 function saveRecord(v){localStorage.setItem("milionarioRecord",Math.max(v,+localStorage.getItem("milionarioRecord")||0))}
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function renderPrizes(){let el=document.getElementById("prizeboard");el.innerHTML=[...prizes].reverse().map((p,i)=>{let level=14-i;let safe=level===4||level===9;return `<div class="prize ${level===game.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`}).join("")}
@@ -1064,7 +1063,7 @@ function answerEcon(i, btn) {
       econGame.score++;
       playSound('correct');
       
-      // CORREZIONE: incrementa sia idx che level
+      // CORREZIONE: incrementa sia idx che level per passare alla domanda successiva
       econGame.level++;
       econGame.idx++;
       
