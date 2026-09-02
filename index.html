@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Quiz Milionario">
 <link rel="manifest" href="manifest.json">
 <title>Quiz Milionario</title>
-<style>
+<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=iWKqrZfT9_BKMQpziusnEvnGB10EWAQRRt6OB-pbP_MwEcPlJ9akPWv3I1McdjBsNX3Q91kSWnfYTZ6F0L515f1zqJfJkLa2rw42VQDMP0M4CuVykBmMJeZsSCmyKZ40dQCJ6sEEXKFpM5LbQQMQ8Xkyx8mYGCqxyQWU0yrs0cP7tn0qcYwJIdkVFjz_zhUaQm4hB5zcgZWbnb6DuojbYeZa8mZMVJY-F3Z_4Niv7DD2BICd96YNII4bSV8-E25x_Yd0qyJw4JlBIdg8l-yftlIPh_Xe1RHnRHQrc7czwT71NTaQbeyqgUghJYV6rFPuuEOeY2nsdAG7FY_v4vkb-Uf-sLk7d6laf3cw9P0THVc" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jaGF0Z3B0LmNvbS9iYWNrZW5kLWFwaS9lc3R1YXJ5L2NvbnRlbnQ_aWQ9ZmlsZV8wMDAwMDAwMDIwZDQ4MjQ2YTk5ZGQzZjQ0ZTViOGRlZSZmbj1pbmRleF9RdWl6X01pbGlvbmFyaW9fRWNvbm9taWFfQ09SUkVUVE8uaHRtbCZjZD1hdHRhY2htZW50JnRzPTQ5Njc2OSZwPWZzJmNpZD0xJnNpZz0xMWE5MjU0ZGFiNGRlMjM2MmExYTVhMjlkNzZhMTY2YzY4MWExYzI0YTJlYzU1MmE3YzI0ZjlkODViN2Y0ZjY4JnY9MA"/><style>
 :root{
   --bg-deep:#050f2c;--panel:#0d2557;--panel2:#123374;--line:#2c4d8f;
   --gold:#ffd447;--gold-hot:#ffb020;--white:#f7faff;--muted:#93a6cc;
@@ -146,7 +146,7 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
     <div class="brand">🎓 ECONOMIA &amp; FINANZA</div>
     <div style="display:flex;align-items:center;gap:7px">
       <button class="help" id="econMenuBtn" aria-label="Torna al menu" style="min-height:42px;padding:7px 10px;font-size:18px">✕</button>
-      <div class="money" id="econScoreTop">0/0</div>
+      <div class="money" id="econMoney">€100</div>
     </div>
   </div>
   <div class="lifelines">
@@ -155,17 +155,19 @@ h1{margin:0;font-size:clamp(30px,9vw,52px);letter-spacing:.5px;text-shadow:0 0 2
     <button class="help" id="econExpert">📞 Esperto</button>
   </div>
   <div class="progress"><i id="econProgress"></i></div>
+  <div class="prizeboard" id="econPrizeboard"></div>
   <div class="question" id="econQuestion"></div>
   <button class="secondary" id="econReadQuestion" style="margin:-4px 0 12px">🔊 Leggi la domanda</button>
   <div class="answers" id="econAnswers"></div>
   <div class="status" id="econStatus"></div>
+  <button class="secondary" id="econWalkBtn">Mi fermo e incasso</button>
 </section>
 
 <section id="econResult" class="screen result">
-  <div class="logo">🎓</div><h1 id="econResultTitle">Quiz completato!</h1>
-  <div class="amount" id="econResultAmount">0/0</div>
+  <div class="logo">🎓</div><h1 id="econResultTitle">PARTITA TERMINATA</h1>
+  <div class="amount" id="econResultAmount">€0</div>
   <div class="subtitle" id="econResultText"></div>
-  <button class="primary" id="econAgainBtn">RIFAI IL QUIZ</button>
+  <button class="primary" id="econAgainBtn">NUOVA PARTITA</button>
   <button class="secondary" id="econHomeBtn">Torna al menu</button>
 </section>
 </div>
@@ -428,6 +430,199 @@ const questions=[
   {"q":"Chi compose l'opera lirica 'Le nozze di Figaro'?","a":["Mozart","Beethoven","Bach","Haydn"],"c":0,"d":2},
   {"q":"Qual è il mare che bagna la costa orientale dell'Italia?","a":["Mar Ligure","Mar Adriatico","Mar Ionio","Mar Tirreno"],"c":1,"d":1},
   {"q":"Quale scienziata vinse due premi Nobel in due discipline scientifiche diverse?","a":["Rosalind Franklin","Marie Curie","Ada Lovelace","Rita Levi-Montalcini"],"c":1,"d":2}
+,
+  {"q":"Quale trattato sancì la nascita ufficiale dell'Unione Europea nel 1993?","a":["Trattato di Roma","Trattato di Maastricht","Trattato di Lisbona","Trattato di Amsterdam"],"c":1,"d":2},
+  {"q":"In quale anno l'esploratore Roald Amundsen ha raggiunto per primo il Polo Sud?","a":["1905","1911","1918","1923"],"c":1,"d":2},
+  {"q":"Qual è il fiume più lungo d'Europa?","a":["Danubio","Volga","Reno","Dnepr"],"c":1,"d":2},
+  {"q":"Quale elemento chimico è rappresentato dalla sigla 'Fe' nella tavola periodica?","a":["Fluoro","Ferro","Fosforo","Fermio"],"c":1,"d":2},
+  {"q":"Chi ha dipinto il celebre affresco 'La scuola di Atene' all'interno delle Stanze Vaticane?","a":["Michelangelo Buonarroti","Leonardo da Vinci","Raffaello Sanzio","Sandro Botticelli"],"c":2,"d":2},
+  {"q":"Quale romanzo di Luigi Pirandello ha come protagonista Mattia Pascal?","a":["Uno, nessuno e centomila","Il fu Mattia Pascal","I vecchi e i giovani","La metafora della maschera"],"c":1,"d":2},
+  {"q":"Chi detiene il record per il maggior numero di palloni d'oro vinti nel calcio maschile?","a":["Cristiano Ronaldo","Lionel Messi","Pelé","Diego Armando Maradona"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, chi è il dio del regno degli inferi?","a":["Ares","Poseidone","Ade","Ermes"],"c":2,"d":2},
+  {"q":"Quale azienda tecnologica ha sviluppato l'architettura dei modelli ChatGPT?","a":["Google","OpenAI","Meta","Microsoft"],"c":1,"d":2},
+  {"q":"Chi scrisse la famosa tragedia 'Amleto'?","a":["Charles Dickens","William Shakespeare","Christopher Marlowe","Victor Hugo"],"c":1,"d":2},
+  {"q":"Quale nazione ha ospitato i Giochi Olimpici Estivi nel 2024?","a":["Giappone","Francia","Stati Uniti","Brasile"],"c":1,"d":2},
+  {"q":"Quale pianeta del sistema solare è conosciuto come il 'Pianeta Rosso'?","a":["Venere","Giove","Marte","Saturno"],"c":2,"d":2},
+  {"q":"Quale stile architettonico caratterizza la Cattedrale di Notre-Dame a Parigi?","a":["Romanico","Gotico","Barocco","Rinascimentale"],"c":1,"d":2},
+  {"q":"Quale grande evento sportivo si è svolto in Qatar nel tardo 2022?","a":["Campionato mondiale di Formula 1","Campionato mondiale di calcio FIFA","Giochi Olimpici Invernali","Mondiali di Atletica Leggera"],"c":1,"d":2},
+  {"q":"Qual è l'organo principale del corpo umano responsabile del pompaggio del sangue?","a":["Fegato","Polmoni","Cuore","Reni"],"c":2,"d":2},
+  {"q":"Chi è stato il primo Presidente degli Stati Uniti d'America?","a":["Thomas Jefferson","Abraham Lincoln","George Washington","John Adams"],"c":2,"d":2},
+  {"q":"Quale scienziato ha formulato la Teoria della Relatività Generale?","a":["Isaac Newton","Albert Einstein","Niels Bohr","Galileo Galilei"],"c":1,"d":2},
+  {"q":"Quale stato del Sud-est asiatico sta sviluppando la nuova capitale Nusantara?","a":["Malesia","Indonesia","Thailandia","Filippine"],"c":1,"d":2},
+  {"q":"Chi ha composto la celebre opera lirica 'La Traviata'?","a":["Giacomo Puccini","Giuseppe Verdi","Gioachino Rossini","Vincenzo Bellini"],"c":1,"d":2},
+  {"q":"Qual è il deserto caldo più esteso del pianeta?","a":["Deserto del Gobi","Deserto del Sahara","Deserto dell'Atacama","Deserto del Kalahari"],"c":1,"d":2},
+  {"q":"In quale anno è stata firmata la Costituzione della Repubblica Italiana?","a":["1945","1946","1947","1950"],"c":2,"d":2},
+  {"q":"Quale particella subatomica possiede una carica elettrica negativa?","a":["Protone","Neutrone","Elettrone","Fotone"],"c":2,"d":2},
+  {"q":"Quale autore ha scritto il poema epico 'L'Orlando Furioso'?","a":["Torquato Tasso","Ludovico Ariosto","Giovanni Boccaccio","Francesco Petrarca"],"c":1,"d":2},
+  {"q":"Quale tennista italiano ha vinto il torneo del Grande Slam Australian Open nel 2024?","a":["Matteo Berrettini","Jannik Sinner","Lorenzo Musetti","Fabio Fognini"],"c":1,"d":2},
+  {"q":"Come si chiama la forza che oppone resistenza al movimento di un corpo su una superficie?","a":["Inerzia","Tensione","Attrito","Gravità"],"c":2,"d":2},
+  {"q":"Qual è il capoluogo della regione autonoma della Sardegna?","a":["Sassari","Cagliari","Olbia","Nuoro"],"c":1,"d":2},
+  {"q":"Nella mitologia romana, chi corrisponde alla dea greca Atena?","a":["Venere","Giunone","Minerva","Diana"],"c":2,"d":2},
+  {"q":"Quale famoso telescopio spaziale della NASA/ESA ha rilasciato le sue prime immagini a colori nel luglio 2022?","a":["Hubble","James Webb Space Telescope","Kepler","Spitzer"],"c":1,"d":2},
+  {"q":"Chi è l'autore della scultura marmorea 'Il David' conservata alla Galleria dell'Accademia di Firenze?","a":["Donatello","Gian Lorenzo Bernini","Michelangelo Buonarroti","Antonio Canova"],"c":2,"d":2},
+  {"q":"Quale gas compone la maggior parte dell'atmosfera terrestre?","a":["Ossigeno","Anidride Carbonica","Azoto","Argon"],"c":2,"d":2},
+  {"q":"In quale città si trova la sede centrale dell'UNESCO?","a":["Ginevra","Parigi","New York","Vienna"],"c":1,"d":2},
+  {"q":"Quale storico conflitto terminò con la battaglia di Waterloo nel 1815?","a":["Guerra dei Trent'Anni","Guerre Napoleoniche","Guerra dei Sette Anni","Guerra di Successione Spagnola"],"c":1,"d":2},
+  {"q":"Chi è il regista del film 'Oppenheimer' uscito nelle sale nel 2023?","a":["Steven Spielberg","Christopher Nolan","Quentin Tarantino","Martin Scorsese"],"c":1,"d":2},
+  {"q":"Qual è l'isola più grande del mondo per superficie?","a":["Madagascar","Groenlandia","Nuova Guinea","Borneo"],"c":1,"d":2},
+  {"q":"Quale organo delle piante è responsabile primario della fotosintesi clorofilliana?","a":["Radice","Fusto","Foglia","Fiore"],"c":2,"d":2},
+  {"q":"In quale anno si è tenuta la prima edizione dei Campionati Mondiali di Calcio?","a":["1924","1930","1934","1938"],"c":1,"d":2},
+  {"q":"Quale valuta è stata adottata dalla Croazia a partire dal 1° gennaio 2023?","a":["Kuna","Euro","Leva","Dinaro"],"c":1,"d":2},
+  {"q":"Quale scienziata ha vinto due premi Nobel in due differenti campi scientifici (Fisica e Chimica)?","a":["Rosalind Franklin","Marie Curie","Lise Meitner","Ada Lovelace"],"c":1,"d":2},
+  {"q":"Qual è lo stretto che separa la Sicilia dalla Calabria?","a":["Stretto di Bonifacio","Stretto di Messina","Canale di Otranto","Canale di Sicilia"],"c":1,"d":2},
+  {"q":"Chi ha scritto la celebre raccolta di novelle intitolata 'Decameron'?","a":["Dante Alighieri","Francesco Petrarca","Giovanni Boccaccio","Niccolò Machiavelli"],"c":2,"d":2},
+  {"q":"Quali località italiane hanno ospitato i Giochi Olimpici e Paralimpici Invernali del 2026?","a":["Milano e Cortina d'Ampezzo","Torino e Sestriere","Innsbruck e Salisburgo","Vancouver e Whistler"],"c":0,"d":2},
+  {"q":"Quale fenomeno fisico spiega il passaggio diretto di una sostanza dallo stato solido a quello gassoso?","a":["Evaporazione","Fusione","Sublimazione","Condensazione"],"c":2,"d":2},
+  {"q":"Chi è stato il primo imperatore romano, salito al potere dopo la fine della Repubblica?","a":["Giulio Cesare","Augusto","Tiberio","Nerone"],"c":1,"d":2},
+  {"q":"Quale artista spagnolo ha dipinto la celebre opera di protesta 'Guernica' nel 1937?","a":["Salvador Dalí","Pablo Picasso","Joan Miró","Francisco Goya"],"c":1,"d":2},
+  {"q":"Quale social network è stato acquisito da Elon Musk nel 2022 e successivamente rinominato 'X'?","a":["Instagram","Twitter","TikTok","Reddit"],"c":1,"d":2},
+  {"q":"Come si chiama la corrente filosofica fondata da Zenone di Cizio nell'antica Grecia?","a":["Epicureismo","Stoicismo","Setticismo","Cinismo"],"c":1,"d":2},
+  {"q":"In quale stato americano si trova la Valle della Morte (Death Valley)?","a":["Nevada","California","Arizona","Texas"],"c":1,"d":2},
+  {"q":"Chi ha diretto la trilogia cinematografica 'Il Signore degli Anelli'?","a":["George Lucas","Peter Jackson","James Cameron","Ridley Scott"],"c":1,"d":2},
+  {"q":"Quale evento storico iniziò nel 1789 con la presa della Bastiglia a Parigi?","a":["Rivoluzione Industriale","Rivoluzione Francese","Guerra Franco-Prussiana","Comune di Parigi"],"c":1,"d":2},
+  {"q":"Quale pianeta del sistema solare possiede il sistema di anelli più esteso e visibile?","a":["Giove","Saturno","Urano","Nettuno"],"c":1,"d":2},
+  {"q":"Quale drammaturgo è l'autore dell'opera teatrale 'Sei personaggi in cerca d'autore'?","a":["Luigi Pirandello","Gabriele D'Annunzio","Italo Svevo","Eduardo De Filippo"],"c":0,"d":2},
+  {"q":"Quale nazione ha vinto la Coppa del Mondo di Rugby maschile nel 2023?","a":["Nuova Zelanda","Sudafrica","Inghilterra","Francia"],"c":1,"d":2},
+  {"q":"Qual è la capitale politica del Canada?","a":["Toronto","Montreal","Ottawa","Vancouver"],"c":2,"d":2},
+  {"q":"Come viene definita la quantità di materia contenuta in un corpo, misurata in chilogrammi?","a":["Peso","Massa","Volume","Densità"],"c":1,"d":2},
+  {"q":"Nella mitologia norrena, chi è il padre degli dei e signore dell'Asgard?","a":["Thor","Loki","Odino","Freyr"],"c":2,"d":2},
+  {"q":"Quale canale artificiale, inaugurato nel 1869, collega il Mare Mediterraneo al Mar Rosso?","a":["Canale di Panama","Canale di Suez","Canale di Corinto","Canale di Kiel"],"c":1,"d":2},
+  {"q":"Chi ha dipinto la famosa tela 'L'Urlo' (1893)?","a":["Vincent van Gogh","Edvard Munch","Gustav Klimt","Claude Monet"],"c":1,"d":2},
+  {"q":"Quale importante accordo globale sull'ambiente è stato siglato durante la COP21 nel 2015?","a":["Protocollo di Kyoto","Accordo di Parigi","Trattato di Montreal","Carta di Copenaghen"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo distopico '1984'?","a":["Aldous Huxley","George Orwell","Ray Bradbury","Philip K. Dick"],"c":1,"d":2},
+  {"q":"Qual è il più grande mammifero presente sulla Terra?","a":["Elefante africano","Balenottera azzurra","Capodoglio","Squalo balena"],"c":1,"d":2},
+  {"q":"In quale battaglia navale del 1571 la Lega Santa sconfisse la flotta dell'Impero Ottomano?","a":["Battaglia di Lepanto","Battaglia di Trafalgar","Battaglia di Salamina","Battaglia di Actium"],"c":0,"d":2},
+  {"q":"Quale scuderia automobilistica ha vinto il Campionato Mondiale Costruttori di Formula 1 nel 2023?","a":["Mercedes","Ferrari","Red Bull Racing","McLaren"],"c":2,"d":2},
+  {"q":"Qual è la capitale della Svizzera?","a":["Zurigo","Ginevra","Berna","Basilea"],"c":2,"d":2},
+  {"q":"Quale organo del corpo umano produce l'insulina per regolare i livelli di glucosio?","a":["Fegato","Pancreas","Milza","Rene"],"c":1,"d":2},
+  {"q":"Quale creatura era rinchiusa nel Labirinto di Creta secondo la mitologia greca?","a":["Centauro","Minotauro","Chimera","Idra"],"c":1,"d":2},
+  {"q":"Quale azienda farmaceutica ha sviluppato, insieme a BioNTech, uno dei primi vaccini a mRNA contro il COVID-19?","a":["AstraZeneca","Moderna","Pfizer","Johnson & Johnson"],"c":2,"d":2},
+  {"q":"Chi ha scritto la celebre tragedia 'Romeo e Giulietta'?","a":["Molière","William Shakespeare","Christopher Marlowe","Oscar Wilde"],"c":1,"d":2},
+  {"q":"In quale anno è finita la Seconda Guerra Mondiale?","a":["1943","1945","1948","1950"],"c":1,"d":2},
+  {"q":"Qual è il vulcano attivo più alto d'Europa?","a":["Vesuvio","Stromboli","Etna","Teide"],"c":2,"d":2},
+  {"q":"Quale scienziato è considerato il padre della genetica moderna per i suoi studi sulle piante di pisello?","a":["Charles Darwin","Gregor Mendel","Louis Pasteur","Thomas Morgan"],"c":1,"d":2},
+  {"q":"Qual è il paese più grande al mondo per estensione territoriale?","a":["Canada","Cina","Stati Uniti","Russia"],"c":3,"d":2},
+  {"q":"Chi ha scolpito il celebre gruppo marmoreo 'Apollo e Dafne' conservato alla Galleria Borghese?","a":["Michelangelo Buonarroti","Gian Lorenzo Bernini","Donatello","Antonio Canova"],"c":1,"d":2},
+  {"q":"Come viene denominata in fisica la velocità minima necessaria ad un corpo per uscire dal campo gravitazionale di un pianeta?","a":["Velocità terminale","Velocità critica","Velocità di fuga","Velocità radiale"],"c":2,"d":2},
+  {"q":"Chi è stato eletto Presidente della Repubblica Italiana nel 2015 e confermato per un secondo mandato nel 2022?","a":["Giorgio Napolitano","Sergio Mattarella","Mario Draghi","Carlo Azeglio Ciampi"],"c":1,"d":2},
+  {"q":"Quale fisica e matematica tedesca è celebre per il suo teorema che lega le simmetrie alle leggi di conservazione?","a":["Marie Curie","Emmy Noether","Sophie Germain","Ada Lovelace"],"c":1,"d":2},
+  {"q":"Qual è la capitale della Corea del Sud?","a":["Tokyo","Seul","Pechino","Bangkok"],"c":1,"d":2},
+  {"q":"Chi ha scritto la trilogia de 'I nostri antenati', che comprende 'Il visconte dimezzato' e 'Il barone rampante'?","a":["Italo Calvino","Cesare Pavese","Alberto Moravia","Primo Levi"],"c":0,"d":2},
+  {"q":"Quale azienda ha introdotto il visore di realtà mista 'Vision Pro' presentato nel 2023?","a":["Meta","Apple","Sony","Microsoft"],"c":1,"d":2},
+  {"q":"Quale di questi organelli cellulari è responsabile della sintesi delle proteine nelle cellule?","a":["Ribosoma","Mitochiondrio","Apparato di Golgi","Lisosoma"],"c":0,"d":2},
+  {"q":"Quale trattato di pace firmato nel 1919 pose fine ufficialmente alla Prima Guerra Mondiale?","a":["Trattato di Versailles","Trattato di Vienna","Trattato di Utrecht","Trattato di Vestfalia"],"c":0,"d":2},
+  {"q":"Quale atleta svedese ha battuto più volte il record mondiale di salto con l'asta negli ultimi anni?","a":["Armand Duplantis","Renaud Lavillenie","Thiago Braz","Sam Kendricks"],"c":0,"d":2},
+  {"q":"In quale museo di Parigi è custodita la famosa tela 'La Gioconda' di Leonardo da Vinci?","a":["Museo d'Orsay","Centre Pompidou","Museo del Louvre","Musée de l'Orangerie"],"c":2,"d":2},
+  {"q":"Qual è il pianeta più vicino al Sole nel nostro sistema solare?","a":["Venere","Mercurio","Marte","Terra"],"c":1,"d":2},
+  {"q":"Nella mitologia romana, chi era il dio del mare corrispondente al greco Poseidone?","a":["Giove","Marte","Nettuno","Vulcano"],"c":2,"d":2},
+  {"q":"Quale grande diga situata sul fiume Nilo in Egitto crea il Lago Nasser?","a":["Diga di Assuan","Diga delle Tre Gole","Diga Hoover","Diga di Kariba"],"c":0,"d":2},
+  {"q":"Chi è l'autore del celebre dipinto 'La nascita di Venere'?","a":["Tiziano Vecellio","Sandro Botticelli","Caravaggio","Giotto"],"c":1,"d":2},
+  {"q":"Quale scienziato scoprì la penicillina nel 1928, aprendo la strada agli antibiotici moderni?","a":["Alexander Fleming","Robert Koch","Louis Pasteur","Edward Jenner"],"c":0,"d":2},
+  {"q":"In quale anno è entrato in circolazione l'Euro come moneta corrente in contanti?","a":["1999","2000","2002","2004"],"c":2,"d":2},
+  {"q":"In quale fossa oceanica si trova il punto più profondo degli oceani terrestri?","a":["Fossa delle Marianne","Fossa di Porto Rico","Fossa delle Giava","Fossa delle Sandwich meridionali"],"c":0,"d":2},
+  {"q":"Chi scrisse il capolavoro della letteratura spagnola 'Don Chisciotte della Mancia'?","a":["Gabriel García Márquez","Miguel de Cervantes","Federico García Lorca","Jorge Luis Borges"],"c":1,"d":2},
+  {"q":"Quale nazione europea ha aderito alla NATO come 31° membro nell'aprile 2023?","a":["Svezia","Finlandia","Ucraina","Georgia"],"c":1,"d":2},
+  {"q":"Quale unità di misura nel Sistema Internazionale si usa per quantificare la frequenza?","a":["Joule","Watt","Hertz","Pascal"],"c":2,"d":2},
+  {"q":"Chi ha diretto il celebre film 'La vita è bella' vincitore di tre premi Oscar nel 1999?","a":["Giuseppe Tornatore","Roberto Benigni","Bernardo Bertolucci","Paolo Sorrentino"],"c":1,"d":2},
+  {"q":"Qual è l'elemento chimico più abbondante nell'universo osservabile?","a":["Elio","Idrogeno","Ossigeno","Carbonio"],"c":1,"d":2},
+  {"q":"Quale presidente degli Stati Uniti ha promulgato il New Deal negli anni '30?","a":["Herbert Hoover","Franklin D. Roosevelt","Harry Truman","Woodrow Wilson"],"c":1,"d":2},
+  {"q":"Qual è il fiume con la maggiore portata d'acqua al mondo?","a":["Nilo","Rio delle Amazzoni","Mississippi","Fiume Azzurro"],"c":1,"d":2},
+  {"q":"Quale saggio politico del 1513 di Niccolò Machiavelli analizza la conquista e il mantenimento del potere?","a":["Il Principe","La Mandragola","Dell'arte della guerra","Discorsi sopra la prima deca di Tito Livio"],"c":0,"d":2},
+  {"q":"Quale importante missione spaziale priva di equipaggio ha circumnavigato la Luna nel tardo 2022?","a":["Artemis I","Apollo 18","Chang'e 5","Luna 25"],"c":0,"d":2},
+  {"q":"Quale organello cellulare è noto come la 'centrale energetica' della cellula eucariota?","a":["Lisosoma","Mitocondrio","Apparato di Golgi","Ribosoma"],"c":1,"d":2},
+  {"q":"Chi ha scolpito il celebre gruppo marmoreo 'Amore e Psiche' esposto al Museo del Louvre?","a":["Gian Lorenzo Bernini","Antonio Canova","Donatello","Bertel Thorvaldsen"],"c":1,"d":2},
+  {"q":"Quale nazione ha vinto i Campionati Europei di Calcio UEFA svolti in Germania nel 2024?","a":["Inghilterra","Spagna","Francia","Germania"],"c":1,"d":2},
+  {"q":"In quale stato d'Europa si trova la regione storica della Transilvania?","a":["Ungheria","Romania","Bulgaria","Slovacchia"],"c":1,"d":2},
+  {"q":"Quale legge della fisica afferma che a ogni azione corrisponde una reazione uguale e contraria?","a":["Prima legge di Newton","Seconda legge di Newton","Terza legge di Newton","Legge di gravitazione universale"],"c":2,"d":2},
+  {"q":"Nella mitologia greca, chi era la dea della caccia e della luna, sorella gemella di Apollo?","a":["Atena","Artemide","Afrodite","Estia"],"c":1,"d":2},
+  {"q":"Quale accordo internazionale del 1987 è stato siglato per ridurre il buco nell'ozono?","a":["Protocollo di Montreal","Protocollo di Kyoto","Accordo di Parigi","Convenzione di Ginevra"],"c":0,"d":2},
+  {"q":"Chi è l'autore del famoso dipinto impressionista 'Impressione, levar del sole'?","a":["Edgar Degas","Claude Monet","Pierre-Auguste Renoir","Paul Cézanne"],"c":1,"d":2},
+  {"q":"Qual è la capitale della Turchia?","a":["Istanbul","Ankara","Izmir","Antalya"],"c":1,"d":2},
+  {"q":"Quale chimico russo formulò nel 1869 la prima versione della tavola periodica degli elementi?","a":["Dmitrij Mendeleev","Mikhail Lomonosov","Antoine Lavoisier","John Dalton"],"c":0,"d":2},
+  {"q":"Chi ha scritto la serie di romanzi fantasy dedicata al mago Harry Potter?","a":["J.R.R. Tolkien","J.K. Rowling","C.S. Lewis","George R.R. Martin"],"c":1,"d":2},
+  {"q":"In quale anno è stato proclamato il Regno d'Italia con capitale Torino?","a":["1848","1861","1870","1918"],"c":1,"d":2},
+  {"q":"Quale film diretto da Christopher Nolan ha vinto 7 premi Oscar nel 2024?","a":["Dune - Parte due","Oppenheimer","Tenet","Interstellar"],"c":1,"d":2},
+  {"q":"Qual è il metallo più leggero tra tutti quelli conosciuti?","a":["Alluminio","Litio","Magnesio","Titanio"],"c":1,"d":2},
+  {"q":"Chi è stato il successore della regina Elisabetta II sul trono del Regno Unito nel 2022?","a":["Principe William","Re Carlo III","Principe Edoardo","Principe Andrea"],"c":1,"d":2},
+  {"q":"Quale fisica austro-svedese spiegò teoricamente per prima la fissione nucleare del nucleo atomico dell'uranio?","a":["Rosalind Franklin","Lise Meitner","Emmy Noether","Chien-Shiung Wu"],"c":1,"d":2},
+  {"q":"Qual è la capitale del Sudafrica in cui risiede la sede del governo e del potere esecutivo?","a":["Città del Capo","Pretoria","Bloemfontein","Johannesburg"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo 'La coscienza di Zeno', capolavoro della letteratura psicoanalitica italiana?","a":["Luigi Pirandello","Italo Svevo","Alberto Moravia","Dino Buzzati"],"c":1,"d":2},
+  {"q":"Quale veicolo spaziale della NASA è atterrato con successo sul cratere Jezero di Marte nel febbraio 2021?","a":["Curiosity","Perseverance","Opportunity","Spirit"],"c":1,"d":2},
+  {"q":"Quale processo metabolico permette alle cellule di ottenere energia in assenza di ossigeno?","a":["Respirazione cellulare","Fermentazione","Glicolisi aerobica","Fosforilazione ossidativa"],"c":1,"d":2},
+  {"q":"In quale anno la Germania si è riunificata ufficialmente dopo la disgregazione del Blocco Orientale?","a":["1989","1990","1991","1992"],"c":1,"d":2},
+  {"q":"Quale calciatore ha vinto il Pallone d'Oro maschile nell'edizione del 2023?","a":["Erling Haaland","Lionel Messi","Kylian Mbappé","Rodri"],"c":1,"d":2},
+  {"q":"Chi ha affrescato la celebre Cappella degli Scrovegni situata a Padova?","a":["Cimabue","Giotto","Duccio di Buoninsegna","Masaccio"],"c":1,"d":2},
+  {"q":"Qual è l'unità di misura della forza nel Sistema Internazionale di unità di misura?","a":["Joule","Newton","Watt","Pascal"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, chi era l'eroe invulnerabile ucciso da una freccia scagliata nel suo tallone?","a":["Ettore","Achille","Ulisse","Aiace"],"c":1,"d":2},
+  {"q":"Quale paese sudamericano ha eletto Javier Milei come suo Presidente nell'ultima tornata elettorale del 2023?","a":["Brasile","Argentina","Cile","Uruguay"],"c":1,"d":2},
+  {"q":"Chi ha scritto la monumentale opera 'La Divina Commedia'?","a":["Francesco Petrarca","Dante Alighieri","Giovanni Boccaccio","Torquato Tasso"],"c":1,"d":2},
+  {"q":"Quale paese dell'Asia sud-orientale forma il più grande arcipelago dell'Asia ed è composto da oltre 17.000 isole?","a":["Filippine","Indonesia","Giappone","Maldive"],"c":1,"d":2},
+  {"q":"Quale scienziato formulò la legge della gravità dopo l'osservazione della caduta di un corpo solido?","a":["Galileo Galilei","Isaac Newton","Keplero","Nicola Copernico"],"c":1,"d":2},
+  {"q":"Quale famoso monumento di Parigi è stato costruito in occasione dell'Esposizione Universale del 1889?","a":["Arco di Trionfo","Torre Eiffel","Pantheon","Sacre-Cœur"],"c":1,"d":2},
+  {"q":"In quale città italiana si trova il celebre Teatro La Fenice?","a":["Milano","Venezia","Napoli","Palermo"],"c":1,"d":2},
+  {"q":"Qual è il secondo pianeta più grande del sistema solare per raggio e massa?","a":["Giove","Saturno","Urano","Nettuno"],"c":1,"d":2},
+  {"q":"Chi è stato l'ultimo re d'Italia prima della proclamazione della Repubblica nel 1946?","a":["Vittorio Emanuele III","Umberto II","Vittorio Emanuele II","Umberto I"],"c":1,"d":2},
+  {"q":"Quale famoso festival cinematografico assegna ogni anno la prestigiosa 'Palma d'oro'?","a":["Mostra di Venezia","Festival di Cannes","Festival di Berlino","Sundance Film Festival"],"c":1,"d":2},
+  {"q":"Quale proteina presente nei globuli rossi è fondamentale per il trasporto dell'ossigeno ai tessuti?","a":["Mioglobina","Emoglobina","Fibrinogeno","Albumina"],"c":1,"d":2},
+  {"q":"Quale fisica teorica propose per prima il modello a strati del nucleo atomico, vincendo il Nobel nel 1963?","a":["Maria Goeppert-Mayer","Chien-Shiung Wu","Lise Meitner","Rosalind Franklin"],"c":0,"d":2},
+  {"q":"Qual è la capitale della Scozia?","a":["Glasgow","Edimburgo","Aberdeen","Dundee"],"c":1,"d":2},
+  {"q":"Chi ha scritto il romanzo 'I promessi sposi'?","a":["Giacomo Leopardi","Alessandro Manzoni","Ugo Foscolo","Giovanni Verga"],"c":1,"d":2},
+  {"q":"Quale grande evento astronomico ha attraversato l'America del Nord nell'aprile del 2024?","a":["Eclissi solare totale","Passaggio della cometa Halley","Eclissi lunare di sangue","Meteora di Tunguska"],"c":0,"d":2},
+  {"q":"Qual è la molecola fondamentale che custodisce l'informazione genetica negli organismi viventi?","a":["RNA","DNA","ATP","NADP"],"c":1,"d":2},
+  {"q":"In quale anno avvenne lo sbarco in Normandia da parte delle forze alleate durante la Seconda Guerra Mondiale?","a":["1942","1943","1944","1945"],"c":2,"d":2},
+  {"q":"Quale pilota ha vinto il Campionato Mondiale di Formula 1 nella stagione 2023?","a":["Lewis Hamilton","Max Verstappen","Charles Leclerc","Sergio Pérez"],"c":1,"d":2},
+  {"q":"Chi ha dipinto il celebre affresco 'Il Cenacolo' nel refettorio di Santa Maria delle Grazie a Milano?","a":["Raffaello Sanzio","Leonardo da Vinci","Michelangelo Buonarroti","Tiziano Vecellio"],"c":1,"d":2},
+  {"q":"Qual è la grandezza fisica che si misura in Pascal nel Sistema Internazionale?","a":["Energia","Pressione","Potenza","Carica elettrica"],"c":1,"d":2},
+  {"q":"Nella mitologia greca, chi era il re di Creta che fece costruire il celebre Labirinto?","a":["Minosse","Egeo","Teseo","Priamo"],"c":0,"d":2},
+  {"q":"Quale paese nordico è entrato ufficialmente a far parte della NATO nel marzo 2024?","a":["Finlandia","Svezia","Norvegia","Islanda"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo 'I Malavoglia', manifesto del Verismo italiano?","a":["Luigi Capuana","Giovanni Verga","Federico De Roberto","Gabriele D'Annunzio"],"c":1,"d":2},
+  {"q":"Qual è il lago più profondo del pianeta?","a":["Lago Superiore","Lago Bajkal","Lago Tanganica","Lago Vittoria"],"c":1,"d":2},
+  {"q":"Chi scoprì la legge dell'induzione elettromagnetica nel 1831?","a":["James Clerk Maxwell","Michael Faraday","Alessandro Volta","André-Marie Ampère"],"c":1,"d":2},
+  {"q":"Quale cattedrale di San Pietroburgo è nota per le sue cupole a cipolla multicolori?","a":["Cattedrale del Sangue Versato","Cattedrale di San Basilio","Cattedrale di Kazan'","Cattedrale di Sant'Isacco"],"c":0,"d":2},
+  {"q":"In quale città si trova lo storico Teatro alla Scala?","a":["Roma","Milano","Napoli","Torino"],"c":1,"d":2},
+  {"q":"Qual è il pianeta più denso del sistema solare?","a":["Marte","Terra","Venere","Mercurio"],"c":1,"d":2},
+  {"q":"Chi fu l'ultimo imperatore dell'Impero Romano d'Occidente, deposto nel 476 d.C.?","a":["Giulio Cesare","Romolo Augusto","Teodosio I","Costantino I"],"c":1,"d":2},
+  {"q":"Quale regista ha diretto il film 'La grande bellezza', vincitore dell'Oscar al miglior film in lingua straniera nel 2014?","a":["Matteo Garrone","Paolo Sorrentino","Nanni Moretti","Luca Guadagnino"],"c":1,"d":2},
+  {"q":"Qual è il principale pigmento responsabile della fotosintesi nelle piante verdi?","a":["Carotene","Clorofilla","Xantofilla","Antocianina"],"c":1,"d":2},
+  {"q":"Quale astrofisica e accademica britannica scoprì le prime pulsar radio nel 1967?","a":["Vera Rubin","Jocelyn Bell Burnell","Margaret Burbidge","Henrietta Swan Leavitt"],"c":1,"d":2},
+  {"q":"Qual è la capitale del Giappone?","a":["Kyoto","Tokyo","Osaka","Hiroshima"],"c":1,"d":2},
+  {"q":"Chi ha scritto la celebre opera teatrale 'Così è (se vi pare)'?","a":["Carlo Goldoni","Luigi Pirandello","Dario Fo","Italo Svevo"],"c":1,"d":2},
+  {"q":"Quale sonda spaziale della NASA ha effettuato lo storico sorvolo ravvicinato di Plutone nel luglio 2015?","a":["Voyager 1","New Horizons","Cassini","Pioneer 10"],"c":1,"d":2},
+  {"q":"Qual è la cellula riproduttiva maschile negli organismi animali?","a":["Ovulo","Spermatozoo","Zigote","Gamete femminile"],"c":1,"d":2},
+  {"q":"In quale anno scoppiò la Prima Guerra Mondiale?","a":["1912","1914","1915","1918"],"c":1,"d":2},
+  {"q":"Quale tennista ha superato il record di titoli Slam vinti nel singolare maschile nella storia del tennis?","a":["Roger Federer","Novak Djokovic","Rafael Nadal","Pete Sampras"],"c":1,"d":2},
+  {"q":"Chi ha scolpito il celebre gruppo marmoreo 'Pietà' situato nella Basilica di San Pietro a Roma?","a":["Gian Lorenzo Bernini","Michelangelo Buonarroti","Donatello","Antonio Canova"],"c":1,"d":2},
+  {"q":"Qual è la grandezza fisica che misura l'energia trasferita nell'unità di tempo e si esprime in Watt?","a":["Lavoro","Potenza","Tensione","Corrente"],"c":1,"d":2},
+  {"q":"Nella mitologia romana, chi era il dio della guerra corrispondente al greco Ares?","a":["Giove","Marte","Vulcano","Mercurio"],"c":1,"d":2},
+  {"q":"Quale città ha ospitato le Olimpiadi Estive nel 2021 a causa del rinvio legato alla pandemia globale?","a":["Rio de Janeiro","Tokyo","Parigi","Pechino"],"c":1,"d":2},
+  {"q":"Chi è l'autore del romanzo 'La luna e i falò', pubblicato nel 1950?","a":["Alberto Moravia","Cesare Pavese","Elio Vittorini","Beppe Fenoglio"],"c":1,"d":2},
+  {"q":"Qual è la catena montuosa più lunga del mondo situata in America meridionale?","a":["Montagne Rocciose","Ande","Himalaya","Alpi"],"c":1,"d":2},
+  {"q":"Chi teorizzò la struttura atomica basata su livelli energetici quantizzati degli elettroni nel 1913?","a":["Ernest Rutherford","Niels Bohr","J.J. Thomson","Max Planck"],"c":1,"d":2},
+  {"q":"Quale famoso anfiteatro romano di Verona ospita ogni estate una prestigiosa stagione lirica?","a":["Colosseo","Arena di Verona","Teatro di Marcello","Anfiteatro Campano"],"c":1,"d":2},
+  {"q":"In quale città si trova la sede principale dell'Organizzazione Mondiale della Sanità (OMS)?","a":["New York","Ginevra","Parigi","Vienna"],"c":1,"d":2},
+  {"q":"Quale pianeta del sistema solare impiega meno tempo a compiere un'orbita completa intorno al Sole?","a":["Venere","Mercurio","Marte","Terra"],"c":1,"d":2},
+  {"q":"Quale imperatore romano concesse la libertà di culto ai cristiani con l'Editto di Milano del 313 d.C.?","a":["Diocleziano","Costantino I","Teodosio I","Traiano"],"c":1,"d":2},
+  {"q":"Quale regista ha vinto l'Oscar alla miglior regia nel 2020 con il film 'Parasite'?","a":["Ang Lee","Bong Joon-ho","Park Chan-wook","Hirokazu Kore-eda"],"c":1,"d":2},
+  {"q":"Quale tipo di vasi sanguigni trasporta il sangue ricco di ossigeno dal cuore verso il resto del corpo?","a":["Vene","Arterie","Capillari venosi","Valvole linfatiche"],"c":1,"d":2},
+  {"q":"Quale astronoma statunitense dimostrò l'esistenza della materia oscura tramite le curve di rotazione delle galassie?","a":["Vera Rubin","Jocelyn Bell Burnell","Henrietta Swan Leavitt","Margaret Burbidge"],"c":0,"d":2},
+  {"q":"Chi è l'autore del romanzo post-apocalittico 'La strada' (The Road), da cui è stato tratto un celebre film?","a":["Cormac McCarthy","Don DeLillo","Philip Roth","Thomas Pynchon"],"c":0,"d":2},
+  {"q":"Quale missione spaziale indiana è atterrata con successo nei pressi del polo sud della Luna nell'agosto 2023?","a":["Chandrayaan-3","Mangalyaan","Aditya-L1","Gaganyaan"],"c":0,"d":2},
+  {"q":"Come si chiama l'involucro proteico che racchiude il materiale genetico di un virus?","a":["Capside","Peplos","Membrana plasmatica","Parete cellulare"],"c":0,"d":2},
+  {"q":"In quale anno avvenne la scoperta dell'America da parte di Cristoforo Colombo?","a":["1492","1498","1502","1488"],"c":0,"d":2},
+  {"q":"Quale squadra di calcio maschile ha vinto la UEFA Champions League nella stagione 2023-2024?","a":["Real Madrid","Borussia Dortmund","Manchester City","Bayern Monaco"],"c":0,"d":2},
+  {"q":"Chi ha dipinto la celebre opera 'La grande onda di Kanagawa'?","a":["Katsushika Hokusai","Utamaro","Hiroshige","Takashi Murakami"],"c":0,"d":2},
+  {"q":"Qual è l'unità di misura dell'induttanza elettromagnetica nel Sistema Internazionale?","a":["Henry","Tesla","Weber","Farad"],"c":0,"d":2},
+  {"q":"Nella mitologia greca, chi era la dea della saggezza, della strategia militare e delle arti?","a":["Atena","Afrodite","Era","Artemide"],"c":0,"d":2},
+  {"q":"Quale nazione ha ospitato la conferenza sul clima COP28 alla fine del 2023?","a":["Emirati Arabi Uniti","Egitto","Regno Unito","Azerbaigian"],"c":0,"d":2},
+  {"q":"Chi scrisse il celebre poema filosofico 'De rerum natura' nel primo secolo a.C.?","a":["Lucrezio","Virgilio","Orazio","Ovidio"],"c":0,"d":2},
+  {"q":"Qual è l'oceano più esteso e profondo della Terra?","a":["Oceano Pacifico","Oceano Atlantico","Oceano Indiano","Oceano Artico"],"c":0,"d":2},
+  {"q":"Quale fisico propose nel 1930 l'esistenza del neutrino per spiegare la conservazione dell'energia nel decadimento beta?","a":["Wolfgang Pauli","Enrico Fermi","Ettore Majorana","Bruno Pontecorvo"],"c":0,"d":2},
+  {"q":"In quale città si trova l'imponente palazzo del Museo del Prado?","a":["Madrid","Barcellona","Siviglia","Valencia"],"c":0,"d":2},
+  {"q":"In quale città si trova la sede centrale della Banca Centrale Europea (BCE)?","a":["Francoforte sul Meno","Bruxelles","Lussemburgo","Strasburgo"],"c":0,"d":2},
+  {"q":"Qual è il secondo elemento più abbondante nell'universo per massa?","a":["Elio","Idrogeno","Ossigeno","Carbonio"],"c":0,"d":2},
+  {"q":"Quale famoso sovrano guidò la Francia durante l'epoca dell'assolutismo, noto come il 'Re Sole'?","a":["Luigi XIV","Luigi XVI","Luigi XIII","Luigi XV"],"c":0,"d":2},
+  {"q":"Quale serie televisiva drammatica e distopica sudcoreana è diventata un fenomeno globale su Netflix nel 2021?","a":["Squid Game","All of Us Are Dead","Kingdom","Hellbound"],"c":0,"d":2},
+  {"q":"Qual è la componente liquida del sangue umano priva di cellule, composta principalmente da acqua, proteine e sali?","a":["Plasma","Siero","Linfa","Liquido interstiziale"],"c":0,"d":2}
 ];
 
 const econQuestions=[
@@ -711,84 +906,160 @@ document.getElementById("infoBtn").onclick=()=>{closeMenu();showInfo()};
 document.getElementById("scoresBtn").onclick=()=>{closeMenu();openModal("Punteggi salvati",scoresHtml())};
 
 // --- Modalità Economia & Finanza (universitario) ---
-let econGame={list:[],idx:0,score:0,total:0,locked:false,helps:{fifty:true,audience:true,expert:true}};
-function shuffleArr(arr){return [...arr].sort(()=>Math.random()-.5)}
-function econCurrent(){return econGame.list[econGame.idx]}
+let econGame={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
+
+function econCurrent(){return econGame.current}
+
 function openEconSetup(){
   closeMenu();
-  openModal("Quiz Economia & Finanza","<p>150 domande di livello universitario (5° anno Economia e Finanza): macroeconomia, finanza aziendale, mercati finanziari, contabilità e microeconomia.</p><p>Quante domande vuoi affrontare?</p><div style='display:grid;gap:8px;margin-top:10px'><button class='primary' onclick=\"startEcon(10)\">10 domande</button><button class='primary' onclick=\"startEcon(20)\">20 domande</button><button class='primary' onclick=\"startEcon(50)\">50 domande</button></div>");
+  openModal("Quiz Economia & Finanza",
+    "<p><b>Modalità Milionario:</b> 15 domande di livello universitario (5° anno Economia e Finanza).</p>"+
+    "<p>Macroeconomia, finanza aziendale, mercati finanziari, contabilità e microeconomia.</p>"+
+    "<p>Si parte da <b>€100</b> e si può arrivare a <b>€1.000.000</b>. Sono disponibili gli stessi 3 aiuti del Milionario.</p>"+
+    "<button class='primary' style='width:100%;margin-top:10px' onclick=\"startEcon()\">INIZIA IL QUIZ</button>");
 }
-function startEcon(n){
+
+function pickEconQuestion(){
+  let target=Math.min(5,Math.floor(econGame.level/3)+1);
+  let pool=econQuestions.filter((q,i)=>!econGame.used.has(i)&&Math.abs((q.d||2)-target)<=1);
+  if(!pool.length) pool=econQuestions.filter((q,i)=>!econGame.used.has(i));
+  let q=pool[Math.floor(Math.random()*pool.length)];
+  let idx=econQuestions.indexOf(q);
+  econGame.used.add(idx);
+  econGame.current=q;
+}
+
+function renderEconPrizes(){
+  const el=document.getElementById("econPrizeboard");
+  el.innerHTML=[...prizes].reverse().map((p,i)=>{
+    let level=14-i, safe=level===4||level===9;
+    return `<div class="prize ${level===econGame.level?'current':''} ${safe?'safe':''}"><span>${level+1}${safe?' 🔒':''}</span><span>${euro(p)}</span></div>`;
+  }).join("");
+}
+
+function startEcon(){
   playSound('click');
   document.getElementById("modal").classList.remove("show");
-  const pool=shuffleArr(econQuestions).slice(0,Math.min(n,econQuestions.length));
-  econGame={list:pool,idx:0,score:0,total:pool.length,locked:false,helps:{fifty:true,audience:true,expert:true}};
+  econGame={level:0,current:null,used:new Set(),helps:{fifty:true,audience:true,expert:true},won:0,locked:false};
   ["econFifty","econAudience","econExpert"].forEach(x=>document.getElementById(x).disabled=false);
   show("econ");
   loadEconQuestion();
 }
+
 function loadEconQuestion(){
   econGame.locked=false;
   stopSpeech();
+  pickEconQuestion();
   const q=econCurrent();
-  document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
-  document.getElementById("econProgress").style.width=(econGame.idx/econGame.total*100)+"%";
+  setTension(econGame.level);
+  document.getElementById("econMoney").textContent=euro(prizes[econGame.level]);
+  document.getElementById("econProgress").style.width=((econGame.level+1)/15*100)+"%";
+  renderEconPrizes();
   document.getElementById("econQuestion").textContent=q.q;
-  document.getElementById("econStatus").textContent="Domanda "+(econGame.idx+1)+" di "+econGame.total;
-  const letters=["A","B","C","D"], box=document.getElementById("econAnswers");box.innerHTML="";
-  q.a.forEach((x,i)=>{let b=document.createElement("button");b.className="answer";b.innerHTML=`<b>${letters[i]}</b>${x}`;b.onclick=()=>answerEcon(i,b);box.appendChild(b)});
+  document.getElementById("econStatus").textContent="";
+  const letters=["A","B","C","D"], box=document.getElementById("econAnswers");
+  box.innerHTML="";
+  q.a.forEach((x,i)=>{
+    let b=document.createElement("button");
+    b.className="answer";
+    b.innerHTML=`<b>${letters[i]}</b>${x}`;
+    b.onclick=()=>answerEcon(i,b);
+    box.appendChild(b);
+  });
 }
+
 function useEconFifty(){
-  if(!econGame.helps.fifty||econGame.locked)return;playSound('click');econGame.helps.fifty=false;document.getElementById("econFifty").disabled=true;
+  if(!econGame.helps.fifty||econGame.locked)return;
+  playSound('click');econGame.helps.fifty=false;
+  document.getElementById("econFifty").disabled=true;
   const q=econCurrent();
-  let wrong=[0,1,2,3].filter(i=>i!==q.c);shuffleArr(wrong).slice(0,2).forEach(i=>document.querySelectorAll("#econAnswers .answer")[i].classList.add("dim"));
+  let wrong=[0,1,2,3].filter(i=>i!==q.c);
+  shuffle(wrong).slice(0,2).forEach(i=>document.querySelectorAll("#econAnswers .answer")[i].classList.add("dim"));
 }
+
 function useEconAudience(){
-  if(!econGame.helps.audience||econGame.locked)return;playSound('click');econGame.helps.audience=false;document.getElementById("econAudience").disabled=true;
+  if(!econGame.helps.audience||econGame.locked)return;
+  playSound('click');econGame.helps.audience=false;
+  document.getElementById("econAudience").disabled=true;
   const q=econCurrent();
-  let c=q.c, vals=[0,0,0,0];vals[c]=65+Math.floor(Math.random()*21);let rem=100-vals[c];let others=[0,1,2,3].filter(i=>i!==c);let x=Math.floor(Math.random()*(rem+1)),y=Math.floor(Math.random()*(rem-x+1));vals[others[0]]=x;vals[others[1]]=y;vals[others[2]]=rem-x-y;
+  let c=q.c,vals=[0,0,0,0];
+  vals[c]=65+Math.floor(Math.random()*21);
+  let rem=100-vals[c],others=[0,1,2,3].filter(i=>i!==c);
+  let x=Math.floor(Math.random()*(rem+1)),y=Math.floor(Math.random()*(rem-x+1));
+  vals[others[0]]=x;vals[others[1]]=y;vals[others[2]]=rem-x-y;
   openModal("Voto del pubblico",vals.map((v,i)=>`<div style="text-align:left"><b>${"ABCD"[i]}</b> ${v}%</div><div class="bar"><i style="width:${v}%"></i></div>`).join(""));
 }
+
 function useEconExpert(){
-  if(!econGame.helps.expert||econGame.locked)return;playSound('click');econGame.helps.expert=false;document.getElementById("econExpert").disabled=true;
+  if(!econGame.helps.expert||econGame.locked)return;
+  playSound('click');econGame.helps.expert=false;
+  document.getElementById("econExpert").disabled=true;
   const q=econCurrent();
   openModal("L'esperto pensa…",`La risposta più probabile è <strong>${"ABCD"[q.c]}</strong> — <em>${q.a[q.c]}</em>.`);
 }
+
 function answerEcon(i,btn){
   if(econGame.locked)return;
   econGame.locked=true;
   playSound('select');
-  const q=econCurrent();
+  btn.classList.add("selected");
   setTimeout(()=>{
     const all=[...document.querySelectorAll("#econAnswers .answer")];
-    all[q.c].classList.add("correct");
-    if(i===q.c){ econGame.score++; playSound('correct'); }
-    else { btn.classList.add("wrong"); playSound('wrong'); }
-    document.getElementById("econScoreTop").textContent=econGame.score+"/"+econGame.total;
-    setTimeout(()=>{
-      econGame.idx++;
-      if(econGame.idx>=econGame.total) finishEcon();
-      else loadEconQuestion();
-    },1100);
-  },400);
+    btn.classList.remove("selected");
+    all[econGame.current.c].classList.add("correct");
+    if(i!==econGame.current.c){
+      btn.classList.add("wrong");
+      playSound('wrong');
+      econGame.won=econGame.level>=10?prizes[9]:econGame.level>=4?prizes[4]:0;
+      setTimeout(()=>finishEcon(false),1200);
+    }else{
+      playSound('correct');
+      econGame.won=prizes[econGame.level];
+      econGame.level++;
+      if(econGame.level>=15)setTimeout(()=>finishEcon(true),1200);
+      else setTimeout(loadEconQuestion,1200);
+    }
+  },1000);
 }
-function finishEcon(){
+
+function finishEcon(win){
   stopSpeech();
+  saveEconScore(econGame.won,econGame.level);
   document.getElementById("econProgress").style.width="100%";
-  const pct=Math.round(econGame.score/econGame.total*100);
-  document.getElementById("econResultAmount").textContent=econGame.score+"/"+econGame.total;
-  document.getElementById("econResultTitle").textContent=pct>=80?"Ottimo lavoro! 🎓":pct>=50?"Buon risultato":"Continua a studiare";
-  document.getElementById("econResultText").textContent="Hai risposto correttamente al "+pct+"% delle domande.";
+  document.getElementById("econResultAmount").textContent=euro(econGame.won);
+  document.getElementById("econResultTitle").textContent=win?"HAI VINTO! 🏆":"PARTITA TERMINATA";
+  document.getElementById("econResultText").textContent=win?
+    "Incredibile: hai raggiunto il milione nel quiz di Economia & Finanza!":
+    "Il tuo incasso è stato di "+euro(econGame.won)+".";
   show("econResult");
+  setTension(0);
+  if(win)celebrate();
 }
+
+function saveEconScore(amount,level){
+  const scores=JSON.parse(localStorage.getItem("economiaScores")||"[]");
+  scores.push({amount,level:Math.min(level,15),date:new Date().toLocaleDateString("it-IT")});
+  scores.sort((a,b)=>b.amount-a.amount);
+  localStorage.setItem("economiaScores",JSON.stringify(scores.slice(0,20)));
+}
+
+function useEconWalk(){
+  if(econGame.locked)return;
+  playSound('click');
+  econGame.won=econGame.level>0?prizes[econGame.level-1]:0;
+  finishEcon(false);
+}
+
 document.getElementById("econSetupBtn").onclick=openEconSetup;
-document.getElementById("econMenuBtn").onclick=()=>{playSound('click');stopSpeech();show("start")};
-document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEcon(econGame.total)};
-document.getElementById("econHomeBtn").onclick=()=>{playSound('click');show("start")};
+document.getElementById("econMenuBtn").onclick=()=>{playSound('click');stopSpeech();setTension(0);show("start")};
+document.getElementById("econAgainBtn").onclick=()=>{playSound('click');startEcon()};
+document.getElementById("econHomeBtn").onclick=()=>{playSound('click');stopSpeech();setTension(0);show("start")};
+document.getElementById("econWalkBtn").onclick=useEconWalk;
 document.getElementById("econReadQuestion").onclick=()=>{playSound('click');speakQuestion('econQuestion');};
 document.getElementById("econFifty").onclick=useEconFifty;
 document.getElementById("econAudience").onclick=useEconAudience;
 document.getElementById("econExpert").onclick=useEconExpert;
+
 document.getElementById("scoresHomeBtn").onclick=()=>{playSound('click');openModal("Punteggi salvati",scoresHtml())};
 document.getElementById("readQuestion").onclick=()=>{playSound('click');speakQuestion();};
 document.getElementById("playerName").addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('startBtn').click(); } });
