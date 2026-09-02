@@ -1,4 +1,4 @@
-const CACHE_NAME = "milionario-v9";
+const CACHE_NAME = "milionario-v10";
 const ASSETS = [
   "./",
   "./index.html",
